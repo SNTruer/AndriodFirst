@@ -24,7 +24,9 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -77,6 +79,41 @@ public class MainActivityFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data){
     }
 
+    protected static double calculateAccuracy(int txPower, double rssi) {
+        if (rssi == 0) {
+            return -1.0; // if we cannot determine accuracy, return -1.
+        }
+
+        double ratio = rssi*1.0/txPower;
+        if (ratio < 1.0) {
+            return Math.pow(ratio,10);
+        }
+        else {
+            double accuracy =  (0.89976)*Math.pow(ratio,7.7095) + 0.111;
+            return accuracy;
+        }
+    }
+
+    public static short Get_Short_From_Byte(byte firstByte,byte secondByte)
+    {
+        return (short)((short)(firstByte<<8) + (short)(secondByte));
+    }
+
+    public static String byteArrayToHex(byte[] ba) {
+        if (ba == null || ba.length == 0) {
+            return null;
+        }
+
+        StringBuffer sb = new StringBuffer(ba.length * 2);
+        String hexNumber;
+        for (int x = 0; x < ba.length; x++) {
+            hexNumber = "0" + Integer.toHexString(0xff & ba[x]);
+
+            sb.append(hexNumber.substring(hexNumber.length() - 2));
+        }
+        return sb.toString();
+    }
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void onActivityCreated(Bundle savedInstanceState)
     {
@@ -88,10 +125,17 @@ public class MainActivityFragment extends Fragment {
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         getActivity().getApplicationContext().registerReceiver(mReciever, filter);
         m_BluetoothAdapter.startLeScan(new BluetoothAdapter.LeScanCallback() {
+            final int UuidOffset = 9;
+            final int MajorOffset = 25;
+            final int MinorOffset=27;
             @Override
             public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-                if(device.getName() == null) return;
-                BtSearchedList.add(device.getUuids() + ":" + device.getName() + ":" + rssi);
+                String decodedRecord = null;
+                if (device.getName() == null) return;
+                String Uuid = byteArrayToHex(Arrays.copyOfRange(scanRecord,UuidOffset,16));
+                short majorId = Get_Short_From_Byte(scanRecord[MajorOffset],scanRecord[MajorOffset+1]);
+                short minorId = Get_Short_From_Byte(scanRecord[MinorOffset],scanRecord[MinorOffset+1]);
+                BtSearchedList.add(device.getName() + ":" + Uuid + ":" + majorId + ":" + minorId);
                 BtSearchedListAdapter.notifyDataSetChanged();
             }
         });
