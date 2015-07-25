@@ -5,11 +5,11 @@ package com.example.catdog.myapplication;
  */
 public class BeaconData {
     String Uuid;
-    Short MajorId;
-    Short MinorId;
+    Integer MajorId;
+    Integer MinorId;
     Double Distance;
 
-    public BeaconData(String Uuid,Short MajorId,Short MinorId,Double Distance)
+    public BeaconData(String Uuid,Integer MajorId,Integer MinorId,Double Distance)
     {
         this.Uuid=Uuid;
         this.MajorId=MajorId;

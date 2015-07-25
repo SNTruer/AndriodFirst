@@ -37,7 +37,7 @@ import java.util.logging.LogRecord;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class MainActivityFragment extends android.app.Fragment {
     private BluetoothAdapter m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private BluetoothLeScanner m_BluetoothLeScanner;
     private BluetoothLeAdvertiser m_BluetoothLeAdvertiser;
@@ -53,9 +53,6 @@ public class MainActivityFragment extends Fragment {
         public void handleMessage(Message msg) {
             BtListAdapter.notifyDataSetChanged();
         }
-    }
-
-    public MainActivityFragment() {
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -107,7 +104,7 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        FirstSetting();
+        //FirstSetting();
         return view;
     }
 }

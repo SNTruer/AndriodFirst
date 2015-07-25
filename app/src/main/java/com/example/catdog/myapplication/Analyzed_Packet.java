@@ -6,8 +6,8 @@ import java.util.Arrays;
  * Created by CATDOG on 2015-07-22.
  */
 public class Analyzed_Packet {
-    public short MajorId;
-    public short MinorId;
+    public int MajorId;
+    public int MinorId;
     public String Uuid;
     public int txPower;
     public double Distance;
@@ -16,9 +16,11 @@ public class Analyzed_Packet {
     final static int MinorOffset=27;
     final static int txPowerOffset = 29;
 
-    protected static short Get_Short_From_Byte(byte firstByte,byte secondByte)
+    protected static int Get_Short_From_Byte(byte firstByte,byte secondByte)
     {
-        return (short)((short)(firstByte<<8) + (short)(secondByte));
+        int f1 = firstByte & 0xff;
+        int f2 = secondByte & 0xff;
+        return (f1<<8) | f2;
     }
 
     protected static String byteArrayToHex(byte[] ba) {

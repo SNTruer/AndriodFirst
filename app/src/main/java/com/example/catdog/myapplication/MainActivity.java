@@ -1,5 +1,7 @@
 package com.example.catdog.myapplication;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
@@ -16,6 +18,12 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Fragment frg = new MainActivityFragment();
+        FragmentTransaction trs = getFragmentManager().beginTransaction();
+        trs.replace(R.id.firstlayout,frg);
+        trs.addToBackStack(null);
+
+        trs.commit();
     }
 
 
