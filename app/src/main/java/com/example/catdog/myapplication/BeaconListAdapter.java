@@ -35,6 +35,7 @@ class ViewHolder {
         Distance = (TextView)view.findViewById(R.id.distance);
     }
 }
+
 public class BeaconListAdapter extends BaseAdapter {
     private Context m_Context;
     private ArrayList<BeaconData> BeaconList;

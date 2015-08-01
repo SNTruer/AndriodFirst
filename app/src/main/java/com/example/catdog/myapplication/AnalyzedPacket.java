@@ -5,7 +5,7 @@ import java.util.Arrays;
 /**
  * Created by CATDOG on 2015-07-22.
  */
-public class Analyzed_Packet {
+public class AnalyzedPacket {
     public int MajorId;
     public int MinorId;
     public String Uuid;
@@ -53,12 +53,56 @@ public class Analyzed_Packet {
         }
     }
 
-    public Analyzed_Packet(int rssi,byte[] scanRecord)
+    public static double calculateDistance(int txPower, double rssi)
+
     {
-        Uuid = byteArrayToHex(Arrays.copyOfRange(scanRecord, UuidOffset, 16));
+
+        if (rssi == 0)
+
+        {
+
+            return -1.0; // if we cannot determine accuracy, return -1.
+
+        }
+
+
+
+        double mCoefficient1 = 0.42093;
+
+        double mCoefficient2 = 6.9476;
+
+        double mCoefficient3 = 0.54992;
+
+
+
+        double ratio = rssi*1.0/txPower;
+
+        double distance;
+
+        if (ratio < 1.0) {
+
+            distance =  Math.pow(ratio,10);
+
+        }
+
+        else {
+
+            distance =  (mCoefficient1)*Math.pow(ratio,mCoefficient2) + mCoefficient3;
+
+        }
+
+
+
+        return distance;
+
+    }
+
+    public AnalyzedPacket(int rssi, byte[] scanRecord)
+    {
+        Uuid = byteArrayToHex(Arrays.copyOfRange(scanRecord, UuidOffset, UuidOffset + 16));
         MajorId = Get_Short_From_Byte(scanRecord[MajorOffset],scanRecord[MajorOffset+1]);
         MinorId = Get_Short_From_Byte(scanRecord[MinorOffset],scanRecord[MinorOffset+1]);
         txPower=(int)scanRecord[txPowerOffset];
-        Distance=calculateAccuracy(txPower,rssi);
+        Distance=calculateDistance(txPower, rssi);
     }
 }

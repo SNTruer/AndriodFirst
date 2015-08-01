@@ -8,10 +8,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
@@ -23,7 +25,7 @@ public class FirstFragment extends Fragment {
     private View view;
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void FirstSetting()
+    private void initFragment()
     {
         if(m_BluetoothAdapter!=null){
             if(!m_BluetoothAdapter.isEnabled()){
@@ -33,7 +35,7 @@ public class FirstFragment extends Fragment {
         }
     }
 
-    private void ButtonSetting()
+    private void initSearchBtn()
     {
         Button btn = (Button)view.findViewById(R.id.search_beacon_button);
         btn.setOnClickListener(new View.OnClickListener() {
@@ -49,13 +51,30 @@ public class FirstFragment extends Fragment {
         });
     }
 
+    private void initGetGroupBtn()
+    {
+        Button btn = (Button)view.findViewById(R.id.getgroupbutton);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment frg = new GetGroupListFragment();
+                FragmentTransaction trs = getFragmentManager().beginTransaction();
+                trs.replace(R.id.firstlayout,frg);
+                trs.addToBackStack(null);
+
+                trs.commit();
+            }
+        });
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_first, container, false);
 
-        FirstSetting();
-        ButtonSetting();
+        initFragment();
+        initSearchBtn();
+        initGetGroupBtn();
 
         return view;
     }
