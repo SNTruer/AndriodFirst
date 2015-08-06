@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,7 @@ import java.util.ArrayList;
 /**
  * Created by MyeongJun on 2015. 7. 30..
  */
-public class GetGroupListFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class GroupListFragment extends Fragment implements AdapterView.OnItemClickListener {
     private View view;
     private ListView listview;
     GroupMapListAdapter listAdapter;
@@ -26,37 +25,41 @@ public class GetGroupListFragment extends Fragment implements AdapterView.OnItem
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-        listAdapter.notifyDataSetChanged();
     }
 
     private void init(){
-        /*view.setFocusableInTouchMode(true);
-        view.requestFocus();
-        view.setOnKeyListener(new View.OnKeyListener() {
-
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_BACK) {
-                    getFragmentManager().popBackStack();
-                    return true;
-                }
-                return false;
-            }
-        });*/
         listview = (ListView)view.findViewById(R.id.grouplistview);
         try {
-            groupList = RequestServer.getInstance().getGroupList();
+            ServerUtill.normalRequest(new ServerUtill.OnComplete(){
+
+                @Override
+                public void onComplete(byte[] byteArray) {
+                    getGroupList(byteArray);
+                }
+            });
         }catch(Exception e){
             Log.e("Error!","Error!");
         }
-        listAdapter = new GroupMapListAdapter(getActivity().getApplicationContext());
-        listAdapter.settingList(groupList);
-        listview.setAdapter(listAdapter);
-        listview.setOnItemClickListener(this);
+        Log.d("request","request");
     }
 
-    public void getGroup()
+    private void getGroupList(final byte[] byteArray)
     {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    groupList = GroupData.getGroupListFromDom(DomChanger.byteToDom(byteArray));
+                    listAdapter = new GroupMapListAdapter(getActivity().getApplicationContext());
+                    listAdapter.settingList(groupList);
+                    listview.setAdapter(listAdapter);
+                    listview.setOnItemClickListener(GroupListFragment.this);
+                }
+                catch (Exception e){
+
+                }
+            }
+        });
     }
 
     @Override
@@ -83,12 +86,12 @@ public class GetGroupListFragment extends Fragment implements AdapterView.OnItem
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Fragment frg = new GetMapListFragment();
+        Fragment frg = new MapListFragment();
         Bundle args = new Bundle();
         args.putInt("groupIdx",groupList.get(position).groupIdx);
         frg.setArguments(args);
         FragmentTransaction trs = getFragmentManager().beginTransaction();
-        trs.replace(R.id.firstlayout,frg,"map");
+        trs.add(R.id.firstlayout, frg,"map");
         trs.addToBackStack("map");
 
         trs.commit();

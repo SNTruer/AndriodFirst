@@ -19,7 +19,7 @@ import java.util.HashMap;
 /**
  * Created by MyeongJun on 2015. 8. 1..
  */
-public class SendBeaconData extends Thread {
+public class BeaconDataSender extends Thread {
     private BluetoothAdapter m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private static final int REQUEST_ENABLE_BT = 1;
     public View view;
@@ -30,7 +30,7 @@ public class SendBeaconData extends Thread {
     private static final String BROADCAST_LOCAL = "swmaestro.ship.broadcast.local";
     //private BeaconListAdapter m_btListAdapter;
 
-    public SendBeaconData(Context context)
+    public BeaconDataSender(Context context)
     {
         this.context=context;
     }

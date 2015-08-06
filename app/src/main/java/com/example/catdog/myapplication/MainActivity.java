@@ -64,7 +64,7 @@ public class MainActivity extends ActionBarActivity {
     public void onBackPressed()
     {
         FragmentManager frm = getFragmentManager();
-        if(frm.getBackStackEntryCount()>0) frm.popBackStack();
+        if(frm.getBackStackEntryCount()>1) frm.popBackStack();
         //else super.onBackPressed();
     }
 }

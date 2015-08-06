@@ -4,17 +4,13 @@ import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.bluetooth.BluetoothAdapter;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 /**
  * Created by MyeongJun on 2015. 7. 25..
@@ -43,7 +39,7 @@ public class FirstFragment extends Fragment {
             public void onClick(View v) {
                 Fragment frg = new MainActivityFragment();
                 FragmentTransaction trs = getFragmentManager().beginTransaction();
-                trs.replace(R.id.firstlayout,frg);
+                trs.add(R.id.firstlayout,frg);
                 trs.addToBackStack(null);
 
                 trs.commit();
@@ -57,9 +53,9 @@ public class FirstFragment extends Fragment {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Fragment frg = new GetGroupListFragment();
+                Fragment frg = new GroupListFragment();
                 FragmentTransaction trs = getFragmentManager().beginTransaction();
-                trs.replace(R.id.firstlayout,frg);
+                trs.add(R.id.firstlayout,frg);
                 trs.addToBackStack(null);
 
                 trs.commit();
