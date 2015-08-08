@@ -27,8 +27,17 @@
         android:layout_height="wrap_content"
         android:text="GET GROUP LIST"
         android:id="@+id/getgroupbutton"
+        android:layout_marginTop="46dp"
         android:layout_alignTop="@+id/search_beacon_button"
         android:layout_alignLeft="@+id/search_beacon_button"
-        android:layout_alignStart="@+id/search_beacon_button"
-        android:layout_marginTop="63dp" />
+        android:layout_alignStart="@+id/search_beacon_button" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="BROADCAST TEST"
+        android:id="@+id/broadcastbutton"
+        android:layout_below="@+id/getgroupbutton"
+        android:layout_alignLeft="@+id/getgroupbutton"
+        android:layout_alignStart="@+id/getgroupbutton" />
 </RelativeLayout>

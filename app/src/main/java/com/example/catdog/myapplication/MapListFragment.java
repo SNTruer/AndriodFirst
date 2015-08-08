@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -32,8 +33,8 @@ public class MapListFragment extends Fragment implements AdapterView.OnItemClick
             ServerUtill.postRequest(parameter,new ServerUtill.OnComplete(){
 
                 @Override
-                public void onComplete(byte[] byteArray) {
-                    getMapList(byteArray);
+                public void onComplete(ByteArrayOutputStream baos) {
+                    getMapList(baos);
                 }
             });
         }
@@ -43,13 +44,13 @@ public class MapListFragment extends Fragment implements AdapterView.OnItemClick
         }
     }
 
-    private void getMapList(final byte[] byteArray)
+    private void getMapList(final ByteArrayOutputStream baos)
     {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    mapList=MapData.getMapListFromDom(DomChanger.byteToDom(byteArray));
+                    mapList=MapData.getMapListFromDom(DomChanger.byteArrayOutputStreamToDom(baos));
                     listview = (ListView) view.findViewById(R.id.grouplistview);
                     mapAdapter = new GroupMapListAdapter(getActivity().getApplicationContext());
                     mapAdapter.settingList(mapList);

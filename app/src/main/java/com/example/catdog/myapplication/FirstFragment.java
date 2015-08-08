@@ -55,6 +55,22 @@ public class FirstFragment extends Fragment {
             public void onClick(View v) {
                 Fragment frg = new GroupListFragment();
                 FragmentTransaction trs = getFragmentManager().beginTransaction();
+                trs.add(R.id.firstlayout, frg);
+                trs.addToBackStack(null);
+
+                trs.commit();
+            }
+        });
+    }
+
+    private void initBeaconTestBtn()
+    {
+        Button btn = (Button)view.findViewById(R.id.broadcastbutton);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment frg = new BeaconBroadcastGetterFragment();
+                FragmentTransaction trs = getFragmentManager().beginTransaction();
                 trs.add(R.id.firstlayout,frg);
                 trs.addToBackStack(null);
 
@@ -71,6 +87,7 @@ public class FirstFragment extends Fragment {
         initFragment();
         initSearchBtn();
         initGetGroupBtn();
+        initBeaconTestBtn();
 
         return view;
     }

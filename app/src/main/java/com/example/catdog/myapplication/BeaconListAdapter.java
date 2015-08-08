@@ -88,4 +88,8 @@ public class BeaconListAdapter extends BaseAdapter {
     {
         BeaconList.remove(position);
     }
+
+    public void SetList(ArrayList<BeaconData> list){
+        BeaconList = list;
+    }
 }

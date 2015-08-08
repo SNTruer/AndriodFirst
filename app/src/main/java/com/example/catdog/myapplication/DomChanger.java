@@ -27,4 +27,17 @@ public class DomChanger {
         document.getDocumentElement().normalize();
         return document;
     }
+
+    public static Document byteArrayOutputStreamToDom(ByteArrayOutputStream baos) throws Exception {
+        DocumentBuilder builder;
+        DocumentBuilderFactory factory;
+        Document document;
+
+        factory = DocumentBuilderFactory.newInstance();
+        builder = factory.newDocumentBuilder();
+
+        document = builder.parse(new ByteArrayInputStream(baos.toByteArray()));
+        document.getDocumentElement().normalize();
+        return document;
+    }
 }

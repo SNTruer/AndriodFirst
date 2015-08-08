@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 /**
@@ -33,8 +34,8 @@ public class GroupListFragment extends Fragment implements AdapterView.OnItemCli
             ServerUtill.normalRequest(new ServerUtill.OnComplete(){
 
                 @Override
-                public void onComplete(byte[] byteArray) {
-                    getGroupList(byteArray);
+                public void onComplete(ByteArrayOutputStream baos) {
+                    getGroupList(baos);
                 }
             });
         }catch(Exception e){
@@ -43,13 +44,13 @@ public class GroupListFragment extends Fragment implements AdapterView.OnItemCli
         Log.d("request","request");
     }
 
-    private void getGroupList(final byte[] byteArray)
+    private void getGroupList(final ByteArrayOutputStream baos)
     {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    groupList = GroupData.getGroupListFromDom(DomChanger.byteToDom(byteArray));
+                    groupList = GroupData.getGroupListFromDom(DomChanger.byteArrayOutputStreamToDom(baos));
                     listAdapter = new GroupMapListAdapter(getActivity().getApplicationContext());
                     listAdapter.settingList(groupList);
                     listview.setAdapter(listAdapter);

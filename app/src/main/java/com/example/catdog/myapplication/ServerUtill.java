@@ -41,7 +41,7 @@ public class ServerUtill {
                             baos.write(getByte, 0, getByte.length);
                         } else break;
                     }
-                    onObj.onComplete(baos.toByteArray());
+                    onObj.onComplete(baos);
                 }
                 catch (Exception e)
                 {
@@ -76,7 +76,7 @@ public class ServerUtill {
                             baos.write(getByte, 0, getByte.length);
                         } else break;
                     }
-                    onObj.onComplete(baos.toByteArray());
+                    onObj.onComplete(baos);
                 }
                 catch(Exception e)
                 {
@@ -89,6 +89,6 @@ public class ServerUtill {
 
     public interface OnComplete
     {
-        public void onComplete(byte[] byteArray);
+        public void onComplete(ByteArrayOutputStream baos);
     }
 }
