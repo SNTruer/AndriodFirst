@@ -34,8 +34,8 @@ public class GroupListFragment extends Fragment implements AdapterView.OnItemCli
             ServerUtill.normalRequest(new ServerUtill.OnComplete(){
 
                 @Override
-                public void onComplete(ByteArrayOutputStream baos) {
-                    getGroupList(baos);
+                public void onComplete(byte[] byteArray) {
+                    getGroupList(byteArray);
                 }
             });
         }catch(Exception e){
@@ -44,20 +44,20 @@ public class GroupListFragment extends Fragment implements AdapterView.OnItemCli
         Log.d("request","request");
     }
 
-    private void getGroupList(final ByteArrayOutputStream baos)
+    private void getGroupList(final byte[] byteArray)
     {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    groupList = GroupData.getGroupListFromDom(DomChanger.byteArrayOutputStreamToDom(baos));
+                    groupList = GroupData.getGroupListFromDom(DomChanger.byteToDom(byteArray));
                     listAdapter = new GroupMapListAdapter(getActivity().getApplicationContext());
                     listAdapter.settingList(groupList);
                     listview.setAdapter(listAdapter);
                     listview.setOnItemClickListener(GroupListFragment.this);
                 }
                 catch (Exception e){
-
+                    Log.e("Error",e.toString());
                 }
             }
         });

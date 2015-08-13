@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -33,8 +32,8 @@ public class MapListFragment extends Fragment implements AdapterView.OnItemClick
             ServerUtill.postRequest(parameter,new ServerUtill.OnComplete(){
 
                 @Override
-                public void onComplete(ByteArrayOutputStream baos) {
-                    getMapList(baos);
+                public void onComplete(byte[] byteArray) {
+                    getMapList(byteArray);
                 }
             });
         }
@@ -44,13 +43,13 @@ public class MapListFragment extends Fragment implements AdapterView.OnItemClick
         }
     }
 
-    private void getMapList(final ByteArrayOutputStream baos)
+    private void getMapList(final byte[] byteArray)
     {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    mapList=MapData.getMapListFromDom(DomChanger.byteArrayOutputStreamToDom(baos));
+                    mapList=MapData.getMapListFromDom(DomChanger.byteToDom(byteArray));
                     listview = (ListView) view.findViewById(R.id.grouplistview);
                     mapAdapter = new GroupMapListAdapter(getActivity().getApplicationContext());
                     mapAdapter.settingList(mapList);
@@ -87,7 +86,13 @@ public class MapListFragment extends Fragment implements AdapterView.OnItemClick
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(BROADCAST_LOCAL);
-        intent.putExtra("imageUrl",mapList.get(position).imageUrl);
+        intent.putExtra("imageUrl", mapList.get(position).imageUrl);
         LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).sendBroadcast(intent);
+
+        Intent actIntent = new Intent(getActivity(),MapViewActivity.class);
+        actIntent.putExtra("imageUrl",mapList.get(position).imageUrl);
+        actIntent.putExtra("mapDetailString",mapList.get(position).mapDetailString);
+        startActivity(actIntent);
+        getActivity().finish();
     }
 }

@@ -15,6 +15,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -35,13 +36,19 @@ public class ServerUtill {
                     URLConnection con = url.openConnection();
                     InputStream is = con.getInputStream();
                     byte[] getByte = new byte[10240];
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    int chunk=0;
+                    int read=0;
                     while (true) {
-                        if (is.read(getByte) > 0) {
-                            baos.write(getByte, 0, getByte.length);
-                        } else break;
+                        chunk = is.read(getByte,read,getByte.length-read);
+                        if(!((chunk)>0)) break;
+                        read+=chunk;
+                        if(read==getByte.length){
+                            byte[] newByte = new byte[getByte.length*2];
+                            System.arraycopy(getByte,0,newByte,0,getByte.length);
+                            getByte=newByte;
+                        }
                     }
-                    onObj.onComplete(baos);
+                    onObj.onComplete(getByte);
                 }
                 catch (Exception e)
                 {
@@ -70,13 +77,19 @@ public class ServerUtill {
 
                     InputStream is = con.getInputStream();
                     byte[] getByte = new byte[10240];
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    int chunk=0;
+                    int read=0;
                     while (true) {
-                        if (is.read(getByte) > 0) {
-                            baos.write(getByte, 0, getByte.length);
-                        } else break;
+                        chunk = is.read(getByte,read,getByte.length-read);
+                        if(!((chunk)>0)) break;
+                        read+=chunk;
+                        if(read==getByte.length){
+                            byte[] newByte = new byte[getByte.length*2];
+                            System.arraycopy(getByte,0,newByte,0,getByte.length);
+                            getByte=newByte;
+                        }
                     }
-                    onObj.onComplete(baos);
+                    onObj.onComplete(getByte);
                 }
                 catch(Exception e)
                 {
@@ -89,6 +102,6 @@ public class ServerUtill {
 
     public interface OnComplete
     {
-        public void onComplete(ByteArrayOutputStream baos);
+        public void onComplete(byte[] byteArray);
     }
 }
