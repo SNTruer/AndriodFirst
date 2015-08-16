@@ -14,7 +14,10 @@ import android.view.View;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Created by MyeongJun on 2015. 8. 1..
@@ -24,8 +27,8 @@ public class BeaconDataSender extends Thread {
     private static final int REQUEST_ENABLE_BT = 1;
     public View view;
     public boolean stopSw;
-    private HashMap<String, BeaconData> m_beaconHash = new HashMap<>();
-    private ArrayList<BeaconData> m_beaconData = new ArrayList<>();
+    public HashMap<String, BeaconData> m_beaconHash = new HashMap<>();
+    public ArrayList<BeaconData> m_beaconData = new ArrayList<>();
     private Context context;
     private static final String BROADCAST_LOCAL = "swmaestro.ship.broadcast.local";
     //private BeaconListAdapter m_btListAdapter;
@@ -44,17 +47,19 @@ public class BeaconDataSender extends Thread {
             public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
                 if (device.getName() == null) return;
                 AnalyzedPacket pkt = new AnalyzedPacket(rssi,scanRecord);
-                BeaconData data = m_beaconHash.get(pkt.Uuid + pkt.MajorId + pkt.MinorId);
+                BeaconData data = m_beaconHash.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
                 if(data == null)
                 {
                     data = new BeaconData(pkt.Uuid,pkt.MajorId,pkt.MinorId,pkt.Distance);
-                    m_beaconHash.put(pkt.Uuid + pkt.MajorId + pkt.MinorId, data);
+                    data.time=System.currentTimeMillis();
+                    m_beaconHash.put(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId, data);
                     m_beaconData.add(data);
                     //m_btListAdapter.AddItem(data);
                     //LHandler.sendMessage(new Message());
                 }
                 else
                 {
+                    data.time=System.currentTimeMillis();
                     data.Distance=pkt.Distance;
                     //LHandler.sendMessage(new Message());
                 }
@@ -64,6 +69,13 @@ public class BeaconDataSender extends Thread {
         {
             try {
                 sleep(500);
+                Collections.sort(m_beaconData, new Comparator<BeaconData>() {
+                    @Override
+                    public int compare(BeaconData lhs, BeaconData rhs) {
+                        return (lhs.Distance > rhs.Distance) ? 1 : (lhs.Distance == rhs.Distance) ? 0 : (-1);
+                    }
+                });
+
                 sendBroadCast();
 
             } catch (InterruptedException e) {

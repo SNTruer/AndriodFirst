@@ -42,7 +42,8 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        imageUrl = intent.getStringExtra("imageUrl");
+        //imageUrl = intent.getStringExtra("imageUrl");
+        imageUrl="http://www.webengine.co.kr/Escape/map_image/0263/0366/0156/0042/7b0c1632a6e0eea74c79897516a0d2a1.gif";
         mapDetailString = intent.getStringExtra("mapDetailString");
         setContentView(R.layout.activity_show_me_the_map);
 

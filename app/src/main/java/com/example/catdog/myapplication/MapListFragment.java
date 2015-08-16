@@ -29,7 +29,7 @@ public class MapListFragment extends Fragment implements AdapterView.OnItemClick
     private void init()
     {
         try{
-            ServerUtill.postRequest(parameter,new ServerUtill.OnComplete(){
+            ServerUtill.mapRequest(parameter, new ServerUtill.OnComplete() {
 
                 @Override
                 public void onComplete(byte[] byteArray) {

@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 /**
@@ -31,7 +30,7 @@ public class GroupListFragment extends Fragment implements AdapterView.OnItemCli
     private void init(){
         listview = (ListView)view.findViewById(R.id.grouplistview);
         try {
-            ServerUtill.normalRequest(new ServerUtill.OnComplete(){
+            ServerUtill.groupRequest(new ServerUtill.OnComplete() {
 
                 @Override
                 public void onComplete(byte[] byteArray) {

@@ -25,7 +25,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
  * Created by MyeongJun on 2015. 7. 30..
  */
 public class ServerUtill {
-    public static void normalRequest(final OnComplete onObj) throws Exception
+    public static void groupRequest(final OnComplete onObj) throws Exception
     {
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -59,14 +59,13 @@ public class ServerUtill {
         thread.start();
     }
 
-    public static void postRequest(final String parameter,final OnComplete onObj) throws Exception
+    public static void mapRequest(final String parameter, final OnComplete onObj) throws Exception
     {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try{
                     String urlstr = "http://www.webengine.co.kr/Escape/?page=api&type=get_map_list";
-                    Log.e("error",parameter);
                     URL url = new URL(urlstr);
                     URLConnection con = url.openConnection();
                     con.setDoOutput(true);

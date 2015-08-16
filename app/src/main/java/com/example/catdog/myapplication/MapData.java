@@ -6,6 +6,7 @@ import org.w3c.dom.NodeList;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by MyeongJun on 2015. 7. 31..
@@ -37,10 +38,33 @@ public class MapData extends GroupMapSuperData implements Serializable {
                 String mapString = ele.getElementsByTagName("map").item(0).getTextContent().trim();
                 //Document mapDocument = DomChanger.stringToDom(ele.getElementsByTagName("map").item(0).getTextContent().trim());
                 MapData mapData = new MapData(name,imageUrl,mapString);
-                list.add(mapData);
+                Integer mapIdx = Integer.parseInt(ele.getElementsByTagName("map_idx").item(0).getTextContent().trim());
+                list.add(mapIdx,mapData);
             }
         }
 
         return list;
     };
+
+    public static HashMap<Integer, MapData> getMapHashMapFromDom(Document document) throws Exception{
+        NodeList nodeList = document.getElementsByTagName("map_data");
+        int count = nodeList.getLength();
+        HashMap<Integer, MapData> hashMap = new HashMap<>();
+
+        for (int i = 0; i < count; i++) {
+            Element ele = (Element) nodeList.item(i);
+
+            if (ele.hasChildNodes()) {
+                String name = ele.getElementsByTagName("name").item(0).getTextContent().trim();
+                String imageUrl = ele.getElementsByTagName("image").item(0).getTextContent().trim();
+                String mapString = ele.getElementsByTagName("map").item(0).getTextContent().trim();
+                //Document mapDocument = DomChanger.stringToDom(ele.getElementsByTagName("map").item(0).getTextContent().trim());
+                MapData mapData = new MapData(name,imageUrl,mapString);
+                Integer mapIdx = Integer.parseInt(ele.getElementsByTagName("map_idx").item(0).getTextContent().trim());
+                hashMap.put(mapIdx,mapData);
+            }
+        }
+
+        return hashMap;
+    }
 }

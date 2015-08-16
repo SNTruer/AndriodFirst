@@ -79,6 +79,16 @@ public class FirstFragment extends Fragment {
         });
     }
 
+    private void initServiceBtn(){
+        Button btn = (Button)view.findViewById(R.id.servicebutton);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().startService(new Intent(getActivity(),BeaconService.class));
+            }
+        });
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -88,6 +98,7 @@ public class FirstFragment extends Fragment {
         initSearchBtn();
         initGetGroupBtn();
         initBeaconTestBtn();
+        initServiceBtn();
 
         return view;
     }

@@ -10,6 +10,10 @@ public class BeaconData implements Serializable {
     Integer MajorId;
     Integer MinorId;
     Double Distance;
+    Integer GroupIdx;
+    Integer MapIdx;
+    String ImageUrl;
+    Long time;
 
     public BeaconData(String Uuid,Integer MajorId,Integer MinorId,Double Distance)
     {
@@ -17,5 +21,12 @@ public class BeaconData implements Serializable {
         this.MajorId=MajorId;
         this.MinorId=MinorId;
         this.Distance=Distance;
+    }
+
+    public BeaconData(Integer GroupIdx,Integer MapIdx,String ImageUrl)
+    {
+        this.GroupIdx=GroupIdx;
+        this.MapIdx=MapIdx;
+        this.ImageUrl=ImageUrl;
     }
 }

@@ -87,10 +87,15 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
 
     public void changeSize()
     {
-        ViewGroup.LayoutParams params = this.getLayoutParams();
-        params.width=(int)(width*(scaleFactor));
-        params.height=(int)(height*(scaleFactor));
-        setLayoutParams(params);
+        this.post(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup.LayoutParams params = MapCustomView.this.getLayoutParams();
+                params.width = (int) (width * (scaleFactor));
+                params.height = (int) (height * (scaleFactor));
+                setLayoutParams(params);
+            }
+        });
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
