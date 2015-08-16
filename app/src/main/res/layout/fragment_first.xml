@@ -1,51 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".FirstFragment"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".FirstFragment">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start Beacon Search"
-        android:id="@+id/search_beacon_button"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="155dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="#93c309">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView"
-        android:layout_marginTop="103dp"
-        android:background="@drawable/logo"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        <ImageButton
+            android:id="@+id/search_beacon_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:background="@mipmap/btn_search" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="GET GROUP LIST"
-        android:id="@+id/getgroupbutton"
-        android:layout_marginTop="46dp"
-        android:layout_alignTop="@+id/search_beacon_button"
-        android:layout_alignLeft="@+id/search_beacon_button"
-        android:layout_alignStart="@+id/search_beacon_button" />
+        <ImageButton
+            android:id="@+id/getgroupbutton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:background="@mipmap/btn_group" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="BROADCAST TEST"
-        android:id="@+id/broadcastbutton"
-        android:layout_below="@+id/getgroupbutton"
-        android:layout_alignLeft="@+id/getgroupbutton"
-        android:layout_alignStart="@+id/getgroupbutton" />
+        <ImageButton
+            android:id="@+id/broadcastbutton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:background="@mipmap/btn_broadcast" />
+    </LinearLayout>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Service Start"
-        android:id="@+id/servicebutton"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
-</RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <at.markushi.ui.CircleButton
+            android:id="@+id/servicebutton"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_marginTop="70dp"
+            android:src="@mipmap/btn_on"
+            app:cb_color="#99CC00"
+            app:cb_pressedRingWidth="20dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="서비스를 시동해주십시오."
+            android:textSize="24dp" />
+    </LinearLayout>
+</LinearLayout>

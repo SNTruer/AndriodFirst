@@ -5,12 +5,16 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+
+import at.markushi.ui.CircleButton;
 
 /**
  * Created by MyeongJun on 2015. 7. 25..
@@ -33,7 +37,7 @@ public class FirstFragment extends Fragment {
 
     private void initSearchBtn()
     {
-        Button btn = (Button)view.findViewById(R.id.search_beacon_button);
+        ImageButton btn = (ImageButton)view.findViewById(R.id.search_beacon_button);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,7 +53,7 @@ public class FirstFragment extends Fragment {
 
     private void initGetGroupBtn()
     {
-        Button btn = (Button)view.findViewById(R.id.getgroupbutton);
+        ImageButton btn = (ImageButton)view.findViewById(R.id.getgroupbutton);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,7 +69,7 @@ public class FirstFragment extends Fragment {
 
     private void initBeaconTestBtn()
     {
-        Button btn = (Button)view.findViewById(R.id.broadcastbutton);
+        ImageButton btn = (ImageButton)view.findViewById(R.id.broadcastbutton);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,7 +84,7 @@ public class FirstFragment extends Fragment {
     }
 
     private void initServiceBtn(){
-        Button btn = (Button)view.findViewById(R.id.servicebutton);
+        CircleButton btn = (CircleButton)view.findViewById(R.id.servicebutton);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
