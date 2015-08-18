@@ -31,10 +31,8 @@ public class BeaconService extends Service implements Runnable {
         while(true){
             beaconList=receiver.beaconList;
             if(beaconList==null) continue;
-            synchronized (this){
-                Iterator<BeaconData> iterator = beaconList.iterator();
-                while(iterator.hasNext()) {
-                    BeaconData data = iterator.next();
+                for(int i=0;i<beaconList.size();i++){
+                    BeaconData data = beaconList.get(i);
                     String key = data.Uuid + "-" + data.MajorId + "-" + data.MinorId;
                     BeaconData getData = beaconDataHashMap.get(key);
                     if (getData==null) continue;
@@ -45,7 +43,6 @@ public class BeaconService extends Service implements Runnable {
                     break;
                 }
             }
-        }
     }
 
     private void callMap(final Integer groupIdx,final Integer mapIdx){

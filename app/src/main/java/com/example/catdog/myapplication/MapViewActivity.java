@@ -64,7 +64,13 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
         beaconDataReceiver=new BeaconDataReceiver(this);
 
         try {
-            mapView.init(imageUrl, DomChanger.stringToDom(mapDetailString),beaconDataReceiver);
+            mapView.init(imageUrl, DomChanger.stringToDom(mapDetailString), beaconDataReceiver, new MapCustomView.BeaconChangeCallback() {
+                @Override
+                public void callBack(double x, double y) {
+                    //horizontalScrollView.scrollTo((int)x,0);
+                    //scrollView.scrollTo(0,(int)y);
+                }
+            });
             Log.d("map", "맵 초기화");
         } catch (Exception e) {
             e.printStackTrace();
