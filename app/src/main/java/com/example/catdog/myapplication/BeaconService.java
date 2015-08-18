@@ -102,13 +102,13 @@ public class BeaconService extends Service implements Runnable {
         groupMapHash = new HashMap<>();
 
         beaconDataHashMap = new HashMap<>();
-        BeaconData data1 = new BeaconData(1,7,
-                "http://www.webengine.co.kr/Escape/ttp://www.webengine.co.kr/Escape/map_image/0263/0366/0156/0042/7b0c1632a6e0eea74c79897516a0d2a1.gif"
+        BeaconData data1 = new BeaconData(1,1,
+                "http://www.webengine.co.kr/Escape//map_image/0263/0366/0156/0042/7b0c1632a6e0eea74c79897516a0d2a1.gif"
         );
         beaconDataHashMap.put("24ddf4118cf1440c87cde368daf9c93e-18244-17731",data1);
         beaconDataHashMap.put("24ddf4118cf1440c87cde368daf9c93e-18249-18247",data1);
-        data1 = new BeaconData(1,7,
-                "http://www.webengine.co.kr/Escape/ttp://www.webengine.co.kr/Escape/map_image/0263/0366/0156/0042/7b0c1632a6e0eea74c79897516a0d2a1.gif"
+        data1 = new BeaconData(1,1,
+                "http://www.webengine.co.kr/Escape//map_image/0263/0366/0156/0042/7b0c1632a6e0eea74c79897516a0d2a1.gif"
         );
         beaconDataHashMap.put("24ddf4118cf1440c87cde368daf9c93e-18249-18247",data1);
 

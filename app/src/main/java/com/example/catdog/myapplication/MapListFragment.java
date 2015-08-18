@@ -89,6 +89,9 @@ public class MapListFragment extends Fragment implements AdapterView.OnItemClick
         intent.putExtra("imageUrl", mapList.get(position).imageUrl);
         LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).sendBroadcast(intent);
 
+        //BeaconDataSender sender = new BeaconDataSender(getActivity());
+        //sender.start();
+
         Intent actIntent = new Intent(getActivity(),MapViewActivity.class);
         actIntent.putExtra("imageUrl",mapList.get(position).imageUrl);
         actIntent.putExtra("mapDetailString",mapList.get(position).mapDetailString);

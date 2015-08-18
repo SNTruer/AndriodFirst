@@ -39,7 +39,7 @@ public class MapData extends GroupMapSuperData implements Serializable {
                 //Document mapDocument = DomChanger.stringToDom(ele.getElementsByTagName("map").item(0).getTextContent().trim());
                 MapData mapData = new MapData(name,imageUrl,mapString);
                 Integer mapIdx = Integer.parseInt(ele.getElementsByTagName("map_idx").item(0).getTextContent().trim());
-                list.add(mapIdx,mapData);
+                list.add(mapData);
             }
         }
 

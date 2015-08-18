@@ -14,24 +14,16 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.HorizontalScrollView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Created by imcheck on 2015. 7. 30..
@@ -47,6 +39,11 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
     private double[][] distance = new double[101][101];
     public ScaleGestureDetector scaleDetector;
     private Context context;
+    private Dijkstra dijkstra;
+    private boolean[] routeCheck = new boolean[101];
+    private BeaconDataReceiver beaconDataReceiver;
+    private String nowBeaconKey;
+    private NodePoint startPoint;
 
     public MapCustomView(Context context) {
         super(context);
@@ -99,8 +96,9 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public void init(String url,Document doc)
+    public void init(String url,Document doc,BeaconDataReceiver receiver)
     {
+        beaconDataReceiver=receiver;
         setOnTouchListener(this);
         scaleDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.OnScaleGestureListener() {
             @Override
@@ -176,7 +174,47 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
     public void refreshImage()
     {
         this.postInvalidate(); // onDraw 를 부르는 메소드 (invalidate 메소드는 UI Thread 에서 부를 수 있는 메소드)
-                                // postInvalidate() 는 언제나 가능
+        // postInvalidate() 는 언제나 가능
+    }
+
+    private void startBeacon(){
+        nowBeaconKey=new String("");
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    if(beaconDataReceiver.beaconList==null) continue;
+                    if(beaconDataReceiver.beaconList.size()==0) continue;
+                    BeaconData data=beaconDataReceiver.beaconList.get(0);
+                    String key=data.Uuid+"-"+data.MajorId+"-"+data.MinorId;
+                    if(!nowBeaconKey.equals(key)){
+                        nowBeaconKey =key;
+                        checkBeacon(key);
+                    }
+                }
+            }
+        });
+        thread.start();
+    }
+
+    private void checkBeacon(String key){
+        NodeBeacon beacon = realBeacons.get(key);
+        double min = Double.MAX_VALUE;
+        int start=1;
+        for(int i=1;i<=NodePoint.maxIndex;i++){
+            if(min>getDistance(beacon.x,beacon.y,realNodes[i].x,realNodes[i].y)){
+                min=getDistance(beacon.x,beacon.y,realNodes[i].x,realNodes[i].y);
+                startPoint=realNodes[i];
+                start=i;
+            }
+        }
+        dijkstra = new Dijkstra(NodePoint.maxIndex,start,distance,realNodes);
+        routeCheck = dijkstra.getRoute();
+        refreshImage();
+    }
+
+    private double getDistance(double x,double y,double x1,double y1){
+        return Math.sqrt((x-x1)*(x-x1)+(y-y1)*(y-y1));
     }
 
 
@@ -185,21 +223,30 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
         if (m_bitmap == null || realNodes == null)
             return;
 
-        canvas.scale(scaleFactor,scaleFactor);
+        canvas.scale(scaleFactor, scaleFactor);
 
         canvas.drawBitmap(m_bitmap, 0, 0, null);
 
         Paint paint = new Paint();
+        if(nowBeaconKey !=null){
+            paint.setColor(Color.GREEN);
+            NodeBeacon beacon = realBeacons.get(nowBeaconKey);
+            if(beacon!=null) {
+                canvas.drawCircle((float) beacon.x, (float) beacon.y, 10, paint);
+                canvas.drawLine((float) beacon.x, (float) beacon.y, (float) startPoint.x, (float) startPoint.y, paint);
+            }
+        }
 
         for (int i = 1; i <= NodePoint.maxIndex; i++) {
 
-            if (realNodes[i].exit == 1) paint.setColor(Color.BLUE);
+            if ((realNodes[i].exit == 1 || routeCheck[i])) paint.setColor(Color.BLUE);
             else paint.setColor(Color.RED);
             canvas.drawCircle((float) realNodes[i].x, (float) realNodes[i].y, 10, paint);
             for (int j = i + 1; j <= NodePoint.maxIndex; j++) {
 
                 if (distance[i][j] > 0) {
-
+                    if(routeCheck[i] && routeCheck[j]) paint.setColor(Color.BLUE);
+                    else paint.setColor(Color.RED);
                     canvas.drawLine((float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, paint);
                 }
             }
@@ -264,8 +311,9 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
 
                     imsi.x = Double.parseDouble(beacon.getAttribute("x"));
                     imsi.y = Double.parseDouble(beacon.getAttribute("y"));
-                    realBeacons.put(beacon.getAttribute("majorid")+beacon.getAttribute("minorid")+beacon.getAttribute("uuud"),imsi);
+                    realBeacons.put(beacon.getAttribute("uuid")+"-"+beacon.getAttribute("majorid")+"-"+beacon.getAttribute("minorid"),imsi);
                 }
+                startBeacon();
             } catch (Exception e) {
                 Log.d("Fuck", e.toString());
             }

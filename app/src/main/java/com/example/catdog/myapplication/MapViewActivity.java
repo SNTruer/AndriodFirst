@@ -36,14 +36,15 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
     LinearLayout linearLayout;
     String imageUrl;
     String mapDetailString;
+    BeaconDataReceiver beaconDataReceiver;
     int xStartPos,yStartPos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        //imageUrl = intent.getStringExtra("imageUrl");
-        imageUrl="http://www.webengine.co.kr/Escape/map_image/0263/0366/0156/0042/7b0c1632a6e0eea74c79897516a0d2a1.gif";
+        imageUrl = intent.getStringExtra("imageUrl");
+        //imageUrl="http://www.webengine.co.kr/Escape/map_image/0263/0366/0156/0042/7b0c1632a6e0eea74c79897516a0d2a1.gif";
         mapDetailString = intent.getStringExtra("mapDetailString");
         setContentView(R.layout.activity_show_me_the_map);
 
@@ -61,11 +62,14 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
         horizontalScrollView.setFadingEdgeLength(0);
         scrollView.setFadingEdgeLength(0);
 
+        beaconDataReceiver=new BeaconDataReceiver(this);
 
         try {
-            mapView.init(imageUrl, DomChanger.stringToDom(mapDetailString));
+            mapView.init(imageUrl, DomChanger.stringToDom(mapDetailString),beaconDataReceiver);
+            Log.d("map", "맵 초기화");
         } catch (Exception e) {
             e.printStackTrace();
+            Log.d("map", "에러라");
         }
 
         runOnUiThread(new Runnable() {
