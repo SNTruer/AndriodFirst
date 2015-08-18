@@ -54,7 +54,6 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
     void init() {
         mapView = new MapCustomView(this);
 
-
         horizontalScrollView=(HorizontalScrollView)findViewById(R.id.maphorizontalscrollview);
         scrollView=(ScrollView)findViewById(R.id.mapscrollview);
         horizontalScrollView.setOnTouchListener(this);

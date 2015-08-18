@@ -31,18 +31,19 @@ public class BeaconService extends Service implements Runnable {
         while(true){
             beaconList=receiver.beaconList;
             if(beaconList==null) continue;
-
-            Iterator<BeaconData> iterator = beaconList.iterator();
-            while(iterator.hasNext()) {
-                BeaconData data = iterator.next();
-                String key = data.Uuid + "-" + data.MajorId + "-" + data.MinorId;
-                BeaconData getData = beaconDataHashMap.get(key);
-                if (getData==null) continue;
-                if(!nowMap.equals(getData.GroupIdx.toString() + "-" + getData.MapIdx.toString())){
-                    Log.d("map",nowMap + " 에서 " + getData.GroupIdx.toString() + "-" + getData.MapIdx.toString() + " 로");
-                    callMap(getData.GroupIdx,getData.MapIdx);
+            synchronized (this){
+                Iterator<BeaconData> iterator = beaconList.iterator();
+                while(iterator.hasNext()) {
+                    BeaconData data = iterator.next();
+                    String key = data.Uuid + "-" + data.MajorId + "-" + data.MinorId;
+                    BeaconData getData = beaconDataHashMap.get(key);
+                    if (getData==null) continue;
+                    if(!nowMap.equals(getData.GroupIdx.toString() + "-" + getData.MapIdx.toString())){
+                        Log.d("map",nowMap + " 에서 " + getData.GroupIdx.toString() + "-" + getData.MapIdx.toString() + " 로");
+                        callMap(getData.GroupIdx,getData.MapIdx);
+                    }
+                    break;
                 }
-                break;
             }
         }
     }

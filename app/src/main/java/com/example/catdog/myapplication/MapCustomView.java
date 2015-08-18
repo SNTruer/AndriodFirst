@@ -30,7 +30,7 @@ import java.util.HashMap;
  */
 public class MapCustomView extends View implements Runnable, View.OnTouchListener{
 
-    private float scaleFactor = 1.0f;
+    private float scaleFactor = 3.0f;
     public int height;
     public int width;
     private String mapUrl;
@@ -127,6 +127,7 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
         Thread thread = new Thread(this);
         thread.start();
         getXml(doc);
+        startBeacon();
     }
 
     Bitmap m_bitmap;
@@ -188,8 +189,7 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
                     BeaconData data=beaconDataReceiver.beaconList.get(0);
                     String key=data.Uuid+"-"+data.MajorId+"-"+data.MinorId;
                     if(!nowBeaconKey.equals(key)){
-                        nowBeaconKey =key;
-                        checkBeacon(key);
+                        if(checkBeacon(key)) nowBeaconKey=key;
                     }
                 }
             }
@@ -197,8 +197,9 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
         thread.start();
     }
 
-    private void checkBeacon(String key){
+    private boolean checkBeacon(String key){
         NodeBeacon beacon = realBeacons.get(key);
+        if(beacon==null) return false;
         double min = Double.MAX_VALUE;
         int start=1;
         for(int i=1;i<=NodePoint.maxIndex;i++){
@@ -211,6 +212,7 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
         dijkstra = new Dijkstra(NodePoint.maxIndex,start,distance,realNodes);
         routeCheck = dijkstra.getRoute();
         refreshImage();
+        return true;
     }
 
     private double getDistance(double x,double y,double x1,double y1){
@@ -224,7 +226,6 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
             return;
 
         canvas.scale(scaleFactor, scaleFactor);
-
         canvas.drawBitmap(m_bitmap, 0, 0, null);
 
         Paint paint = new Paint();
@@ -233,6 +234,7 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
             NodeBeacon beacon = realBeacons.get(nowBeaconKey);
             if(beacon!=null) {
                 canvas.drawCircle((float) beacon.x, (float) beacon.y, 10, paint);
+                paint.setStrokeWidth(3);
                 canvas.drawLine((float) beacon.x, (float) beacon.y, (float) startPoint.x, (float) startPoint.y, paint);
             }
         }
@@ -247,6 +249,7 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
                 if (distance[i][j] > 0) {
                     if(routeCheck[i] && routeCheck[j]) paint.setColor(Color.BLUE);
                     else paint.setColor(Color.RED);
+                    paint.setStrokeWidth(3);
                     canvas.drawLine((float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, paint);
                 }
             }
@@ -313,7 +316,6 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
                     imsi.y = Double.parseDouble(beacon.getAttribute("y"));
                     realBeacons.put(beacon.getAttribute("uuid")+"-"+beacon.getAttribute("majorid")+"-"+beacon.getAttribute("minorid"),imsi);
                 }
-                startBeacon();
             } catch (Exception e) {
                 Log.d("Fuck", e.toString());
             }
