@@ -151,9 +151,7 @@ public class Client {
 
     private static onConnectError onConnectErrorListener;
     public interface onConnectError { void onConnectError(String ip, int port, String result); }
-    public static void setOnConnectErrorListener(onConnectError listener) {
-        onConnectErrorListener = listener;
-    }
+    public static void setOnConnectErrorListener(onConnectError listener) { onConnectErrorListener = listener; }
 
     private static onDataSent onDataSentListener;
     public interface onDataSent { void onDataSent(String result, boolean isError); }
