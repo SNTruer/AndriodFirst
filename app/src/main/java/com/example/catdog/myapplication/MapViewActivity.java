@@ -67,8 +67,6 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
             mapView.init(imageUrl, DomChanger.stringToDom(mapDetailString), beaconDataReceiver, new MapCustomView.BeaconChangeCallback() {
                 @Override
                 public void callBack(double x, double y) {
-                    //horizontalScrollView.scrollTo((int)x,0);
-                    //scrollView.scrollTo(0,(int)y);
                 }
             });
             Log.d("map", "맵 초기화");
@@ -77,14 +75,10 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
             Log.d("map", "에러라");
         }
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
                 linearLayout = (LinearLayout) findViewById(R.id.testlinear);
                 Log.d("map", "나는 생성");
                 linearLayout.addView(mapView);
-            }
-        });
+                mapView.refreshImage();
 
         //mapView.setFocusableInTouchMode(true);
         //mapView.requestFocus();
@@ -142,7 +136,7 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
                 int xEndPos=(int)event.getRawX();
                 int yEndPos=(int)event.getRawY();
                 scroll(xStartPos-xEndPos,yStartPos-yEndPos);
-                Log.d("map", "스크롤 " + "x좌표는 " + xStartPos + "에서" + xEndPos + ", y좌표는" + yStartPos + "에서 " + yEndPos + "로");
+                //Log.d("map", "스크롤 " + "x좌표는 " + xStartPos + "에서" + xEndPos + ", y좌표는" + yStartPos + "에서 " + yEndPos + "로");
                 xStartPos=xEndPos;
                 yStartPos=yEndPos;
                 break;

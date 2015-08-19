@@ -141,7 +141,6 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
     {
         try {
             URL url = new URL(getMapURL());
-
             HttpURLConnection con = (HttpURLConnection)url.openConnection();
             InputStream is = con.getInputStream();
             int status = con.getResponseCode();
@@ -175,6 +174,7 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
 
         } catch (IOException e) {
             e.printStackTrace();
+            Log.d("map",e.toString());
         }
     }
 
@@ -229,11 +229,16 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (m_bitmap == null || realNodes == null)
+        Log.d("map","맵 그리기 시작합니다.");
+        if (m_bitmap == null || realNodes == null) {
+            if(m_bitmap==null) Log.d("map","비트맵이 널");
+            else Log.d("map","realNodes가 널");
             return;
+        }
 
         canvas.scale(scaleFactor, scaleFactor);
         canvas.drawBitmap(m_bitmap, 0, 0, null);
+        Log.d("map","맵 그리기 시작합니다.");
 
         Paint paint = new Paint();
         if(nowBeaconKey !=null){

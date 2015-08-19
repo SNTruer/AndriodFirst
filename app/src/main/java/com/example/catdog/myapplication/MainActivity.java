@@ -63,4 +63,9 @@ public class MainActivity extends Activity {
         if(frm.getBackStackEntryCount()>1) frm.popBackStack();
         //else super.onBackPressed();
     }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+    }
 }

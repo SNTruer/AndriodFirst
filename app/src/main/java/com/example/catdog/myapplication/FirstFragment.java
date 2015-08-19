@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,6 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import at.markushi.ui.CircleButton;
 
@@ -23,6 +27,7 @@ public class FirstFragment extends Fragment {
     private BluetoothAdapter m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private static final int REQUEST_ENABLE_BT = 1;
     private View view;
+    private Intent serviceIntent;
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void initFragment()
@@ -84,13 +89,25 @@ public class FirstFragment extends Fragment {
     }
 
     private void initServiceBtn(){
-        CircleButton btn = (CircleButton)view.findViewById(R.id.servicebutton);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().startService(new Intent(getActivity(),BeaconService.class));
-            }
-        });
+        final CircleButton btn = (CircleButton)view.findViewById(R.id.servicebutton);
+        final TextView textView = (TextView)view.findViewById(R.id.servicetext);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(serviceIntent==null) {
+                        serviceIntent=new Intent(getActivity(),BeaconService.class);
+                        getActivity().startService(serviceIntent);
+                        btn.setColor(Color.RED);
+                        textView.setText("서비스를 종료하시려면 버튼을 눌러주세요");
+                    }
+                    else{
+                        getActivity().stopService(serviceIntent);
+                        serviceIntent=null;
+                        btn.setColor(Color.rgb(Integer.parseInt("99",16),Integer.parseInt("CC",16),Integer.parseInt("00",16)));
+                        textView.setText("서비스를 시동해주십시오");
+                    }
+                }
+            });
     }
 
     @Override

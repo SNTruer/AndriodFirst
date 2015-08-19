@@ -18,9 +18,6 @@ public class BeaconDataReceiver extends BroadcastReceiver {
     private static final String BROADCAST_LOCAL = "swmaestro.ship.broadcast.local";
 
     public BeaconDataReceiver(Context context){
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BROADCAST_LOCAL);
-        LocalBroadcastManager.getInstance(context).registerReceiver(this, filter);
     }
 
     @Override
@@ -29,7 +26,6 @@ public class BeaconDataReceiver extends BroadcastReceiver {
 
         if(action.equals(BROADCAST_LOCAL))
         {
-            beaconList = (ArrayList)intent.getSerializableExtra("BeaconData");
         }
     }
 }

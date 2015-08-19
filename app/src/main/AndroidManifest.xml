@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--suppress ALL -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.catdog.myapplication">
 
@@ -29,6 +30,11 @@
             android:label="MapView" />
 
         <service android:name=".BeaconService" />
+        <receiver android:name=".BeaconDataReceiver">
+            <intent-filter>
+                <action android:name="swmaestro.ship.broadcast.local"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
