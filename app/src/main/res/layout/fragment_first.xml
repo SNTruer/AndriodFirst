@@ -39,10 +39,16 @@
             android:background="@mipmap/btn_broadcast" />
 
         <Button
+            android:layout_width="69dp"
+            android:layout_height="wrap_content"
+            android:text="브로드"
+            android:id="@+id/button2" />
+
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New Button"
-            android:id="@+id/button2" />
+            android:text="서비스"
+            android:id="@+id/button3" />
     </LinearLayout>
 
     <LinearLayout

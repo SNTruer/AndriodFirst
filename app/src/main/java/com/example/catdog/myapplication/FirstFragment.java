@@ -114,6 +114,14 @@ public class FirstFragment extends Fragment {
             }
         });
 
+        // 서비스 테스트 전용 버튼
+        view.findViewById(R.id.button3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().startService(new Intent(getActivity(), ClientService.class));
+            }
+        });
+
         return view;
     }
 }
