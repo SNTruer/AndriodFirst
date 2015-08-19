@@ -29,6 +29,12 @@
             android:label="MapView" />
 
         <service android:name=".BeaconService" />
+
+        <receiver android:name=".ClientReceiver">
+            <intent-filter>
+                <action android:name="com.example.catdog.myapplication.LOCATE"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
