@@ -30,14 +30,14 @@
             android:name=".MapViewActivity"
             android:label="MapView" />
 
-        <service android:name=".BeaconService" />
-<<<<<<< HEAD
+        <service android:name=".BeaconService"
+            android:enabled="true"
+            />
         <receiver android:name=".BeaconDataReceiver">
             <intent-filter>
                 <action android:name="swmaestro.ship.broadcast.local"/>
             </intent-filter>
         </receiver>
-=======
 
         <receiver android:name=".ClientReceiver" >
             <intent-filter>
@@ -50,7 +50,6 @@
             android:enabled="true"
             android:exported="true" >
         </service>
->>>>>>> d1ed721dcf2cd5452b62c0753d0b553112922f2f
     </application>
 
 </manifest>

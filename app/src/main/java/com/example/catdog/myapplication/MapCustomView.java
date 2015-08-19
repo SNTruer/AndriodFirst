@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -40,7 +41,7 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
     public ScaleGestureDetector scaleDetector;
     private Context context;
     private Dijkstra dijkstra;
-    private boolean[] routeCheck = new boolean[101];
+    private int[] routeCheck = new int[101];
     private BeaconDataReceiver beaconDataReceiver;
     private String nowBeaconKey;
     private NodePoint startPoint;
@@ -232,19 +233,63 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
 
         for (int i = 1; i <= NodePoint.maxIndex; i++) {
 
-            if ((realNodes[i].exit == 1 || routeCheck[i])) paint.setColor(Color.BLUE);
+            if ((realNodes[i].exit == 1 || routeCheck[i]>0)) paint.setColor(Color.BLUE);
             else paint.setColor(Color.RED);
             canvas.drawCircle((float) realNodes[i].x, (float) realNodes[i].y, 10, paint);
+        }
+
+        for(int i=1;i<=NodePoint.maxIndex;i++){
             for (int j = i + 1; j <= NodePoint.maxIndex; j++) {
 
                 if (distance[i][j] > 0) {
-                    if(routeCheck[i] && routeCheck[j]) paint.setColor(Color.BLUE);
-                    else paint.setColor(Color.RED);
                     paint.setStrokeWidth(3);
-                    canvas.drawLine((float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, paint);
+                    if(routeCheck[i]>0 && routeCheck[j]>0 && Math.abs(routeCheck[i]-routeCheck[j])==1)
+                    {
+                        paint.setColor(Color.BLUE);
+                        canvas.drawLine((float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, paint);
+                        if(routeCheck[i]>routeCheck[j]) fillArrow(canvas, (float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, Color.GREEN);
+                        else fillArrow(canvas, (float) realNodes[j].x, (float) realNodes[j].y, (float) realNodes[i].x, (float) realNodes[i].y, Color.GREEN);
+                    }
+                    else {
+                        paint.setColor(Color.RED);
+                        canvas.drawLine((float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, paint);
+                    }
                 }
             }
         }
+    }
+
+    private void fillArrow(Canvas canvas, float x0, float y0, float x1, float y1,int color) {
+
+        Paint paint = new Paint();
+        paint.setColor(color);
+        paint.setStrokeWidth(3);
+        paint.setStyle(Paint.Style.FILL);
+
+        float deltaX = x1 - x0;
+        float deltaY = y1 - y0;
+        float frac = (float) 0.1;
+
+        float point_x_1 = x0 + (float) ((1 - frac) * deltaX + frac * deltaY);
+        float point_y_1 = y0 + (float) ((1 - frac) * deltaY - frac * deltaX);
+
+        float point_x_2 = x1;
+        float point_y_2 = y1;
+
+        float point_x_3 = x0 + (float) ((1 - frac) * deltaX - frac * deltaY);
+        float point_y_3 = y0 + (float) ((1 - frac) * deltaY + frac * deltaX);
+
+        Path path = new Path();
+        path.setFillType(Path.FillType.EVEN_ODD);
+
+        path.moveTo(point_x_1, point_y_1);
+        path.lineTo(point_x_2, point_y_2);
+        path.lineTo(point_x_3, point_y_3);
+        path.lineTo(point_x_1, point_y_1);
+        path.lineTo(point_x_1, point_y_1);
+        path.close();
+
+        canvas.drawPath(path, paint);
     }
 
     public void setMapURL(String url){

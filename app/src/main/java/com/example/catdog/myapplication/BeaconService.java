@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -23,6 +24,14 @@ import java.util.Vector;
  * Created by MyeongJun on 2015. 8. 14..
  */
 public class BeaconService extends Service implements Runnable {
+    private final IBinder binder = new LocalBinder();
+
+    public class LocalBinder extends Binder {
+        BeaconService getService() {
+            return BeaconService.this;
+        }
+    }
+
     private BluetoothAdapter m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private static boolean onlyOneFlag;
     private BeaconDataReceiver receiver;
@@ -46,6 +55,7 @@ public class BeaconService extends Service implements Runnable {
                 Intent intent = new Intent(BROADCAST_LOCAL);
                 intent.putExtra("BeaconDataVector",beaconList);
                 sendBroadcast(intent);
+                Log.d("suck","서비스가 돌고 있음");
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -122,7 +132,7 @@ public class BeaconService extends Service implements Runnable {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
     }
 
     @Override
