@@ -159,7 +159,7 @@ public class Client {
 
     private static onDataReceived onDataReceivedListener;
     public interface onDataReceived { void onDataReceived(String result, boolean isError); }
-    public static void setonDataReceivedListener(onDataReceived listener) { onDataReceivedListener = listener; }
+    public static void setOnDataReceivedListener(onDataReceived listener) { onDataReceivedListener = listener; }
     //endregion
 
     //region [ 소켓 스레드 서비스 ]
@@ -181,8 +181,6 @@ public class Client {
                             } catch (InterruptedException e) { }
                         }
                     }
-
-                    System.out.println("스레드가 돌고있습니다.");
                 }
             }
         });
