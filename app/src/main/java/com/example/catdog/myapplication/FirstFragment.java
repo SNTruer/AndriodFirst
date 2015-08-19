@@ -121,6 +121,24 @@ public class FirstFragment extends Fragment {
         initBeaconTestBtn();
         initServiceBtn();
 
+        // 브로드캐스트 테스트 전용 버튼
+        view.findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent location = new Intent("com.example.catdog.myapplication.LOCATE");
+                location.putExtra("ID", "갱신할 비콘 아이디");
+                getActivity().sendBroadcast(location);
+            }
+        });
+
+        // 서비스 테스트 전용 버튼
+        view.findViewById(R.id.button3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().startService(new Intent(getActivity(), ClientService.class));
+            }
+        });
+
         return view;
     }
 }

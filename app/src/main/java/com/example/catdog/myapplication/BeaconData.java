@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by CATDOG on 2015-07-22.
  */
-public class BeaconData implements Serializable {
+public class BeaconData implements Serializable,Comparable<BeaconData> {
     String Uuid;
     Integer MajorId;
     Integer MinorId;
@@ -28,5 +28,9 @@ public class BeaconData implements Serializable {
         this.GroupIdx=GroupIdx;
         this.MapIdx=MapIdx;
         this.ImageUrl=ImageUrl;
+    }
+    @Override
+    public int compareTo(BeaconData another) {
+        return (this.Distance>another.Distance) ? 1 : (this.Distance==another.Distance) ? 0 : -1;
     }
 }

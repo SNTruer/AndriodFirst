@@ -23,6 +23,9 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,6 +39,8 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
     LinearLayout linearLayout;
     String imageUrl;
     String mapDetailString;
+    Integer groupIdx;
+    Integer mapIdx;
     BeaconDataReceiver beaconDataReceiver;
     int xStartPos,yStartPos;
 
@@ -43,17 +48,15 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        imageUrl = intent.getStringExtra("imageUrl");
-        //imageUrl="http://www.webengine.co.kr/Escape/map_image/0263/0366/0156/0042/7b0c1632a6e0eea74c79897516a0d2a1.gif";
-        mapDetailString = intent.getStringExtra("mapDetailString");
+        groupIdx=(Integer)intent.getSerializableExtra("groupIdx");
+        mapIdx=(Integer)intent.getSerializableExtra("mapIdx");
+
         setContentView(R.layout.activity_show_me_the_map);
 
         init();
     }
 
     void init() {
-        mapView = new MapCustomView(this);
-
         horizontalScrollView=(HorizontalScrollView)findViewById(R.id.maphorizontalscrollview);
         scrollView=(ScrollView)findViewById(R.id.mapscrollview);
         horizontalScrollView.setOnTouchListener(this);
@@ -61,24 +64,38 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
         horizontalScrollView.setFadingEdgeLength(0);
         scrollView.setFadingEdgeLength(0);
 
-        beaconDataReceiver=new BeaconDataReceiver(this);
-
+        String parameter = null;
         try {
-            mapView.init(imageUrl, DomChanger.stringToDom(mapDetailString), beaconDataReceiver, new MapCustomView.BeaconChangeCallback() {
+            parameter = URLEncoder.encode("group_idx", "UTF-8") + "=" + ((Integer)groupIdx).toString();
+            ServerUtill.mapRequest(parameter,new ServerUtill.OnComplete(){
+
                 @Override
-                public void callBack(double x, double y) {
+                public void onComplete(byte[] byteArray) {
+                    try {
+                        HashMap<Integer, MapData> map = MapData.getMapHashMapFromDom(DomChanger.byteToDom(byteArray));
+                        imageUrl = map.get(mapIdx).imageUrl;
+                        mapDetailString = map.get(mapIdx).mapDetailString;
+                        MapViewActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mapView = new MapCustomView(MapViewActivity.this);
+                                try {
+                                    mapView.init(imageUrl, DomChanger.stringToDom(mapDetailString));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                LinearLayout linearLayout = (LinearLayout) findViewById(R.id.testlinear);
+                                linearLayout.addView(mapView);
+                            }
+                        });
+                    } catch (Exception e) {
+                        Log.d("whatthe",e.toString() + "completeError");
+                    }
                 }
             });
-            Log.d("map", "맵 초기화");
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.d("map", "에러라");
+        }catch (Exception e){
+            Log.d("whatthe",e.toString());
         }
-
-                linearLayout = (LinearLayout) findViewById(R.id.testlinear);
-                Log.d("map", "나는 생성");
-                linearLayout.addView(mapView);
-                mapView.refreshImage();
 
         //mapView.setFocusableInTouchMode(true);
         //mapView.requestFocus();
@@ -113,6 +130,12 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
     {
         horizontalScrollView.scrollBy(dx,0);
         scrollView.scrollBy(0,dy);
+    }
+
+    @Override
+    public void onDestroy(){
+        mapView.onDestroy();
+        super.onDestroy();
     }
 
 

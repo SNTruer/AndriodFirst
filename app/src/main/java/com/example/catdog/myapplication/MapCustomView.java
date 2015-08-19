@@ -45,6 +45,7 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
     private String nowBeaconKey;
     private NodePoint startPoint;
     public BeaconChangeCallback beaconChangeCallback;
+    public Thread beaconThread;
 
     public interface BeaconChangeCallback{
         public void callBack(double x,double y);
@@ -63,30 +64,6 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
         this.context=context;
     }
 
-    //@Override
-    /*public void onMeasure(int widthMeasureSpec,int heightMeasureSpec){
-        Log.d("map", "나는 onmeasure");
-        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        int heightSize =0;
-        switch (heightMode){
-            case MeasureSpec.UNSPECIFIED: heightSize = heightMeasureSpec;break;
-            case MeasureSpec.AT_MOST: heightSize = MeasureSpec.getSize(heightMeasureSpec);break;
-            case MeasureSpec.EXACTLY: heightSize = MeasureSpec.getSize(heightMeasureSpec);break;
-        }
-
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int widthSize =0;
-        switch (widthMode){
-            case MeasureSpec.UNSPECIFIED: widthSize = widthMeasureSpec;break;
-            case MeasureSpec.AT_MOST: widthSize = MeasureSpec.getSize(widthMeasureSpec);break;
-            case MeasureSpec.EXACTLY: widthSize = MeasureSpec.getSize(widthMeasureSpec);break;
-        }
-
-        widthSize=(int)(width*(scaleFactor+0.5f));
-        heightSize=(int)(height*(scaleFactor+0.5f));
-        setMeasuredDimension(widthSize, heightSize);
-    }*/
-
     public void changeSize()
     {
         this.post(new Runnable() {
@@ -101,10 +78,8 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public void init(String url,Document doc,BeaconDataReceiver receiver,BeaconChangeCallback beaconChangeCallback)
+    public void init(String url,Document doc)
     {
-        this.beaconChangeCallback=beaconChangeCallback;
-        beaconDataReceiver=receiver;
         setOnTouchListener(this);
         scaleDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.OnScaleGestureListener() {
             @Override
@@ -184,15 +159,19 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
         // postInvalidate() 는 언제나 가능
     }
 
+    public void onDestroy(){
+    }
+
     private void startBeacon(){
         nowBeaconKey=new String("");
-        Thread thread = new Thread(new Runnable() {
+        beaconThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(true){
-                    if(beaconDataReceiver.beaconList==null) continue;
-                    if(beaconDataReceiver.beaconList.size()==0) continue;
-                    BeaconData data=beaconDataReceiver.beaconList.get(0);
+                    if(BeaconDataReceiver.beaconList==null) continue;
+                    if(BeaconDataReceiver.beaconList.size()==0) continue;
+                    BeaconData data=BeaconDataReceiver.beaconList.get(0);
+                    if(data==null) continue;
                     String key=data.Uuid+"-"+data.MajorId+"-"+data.MinorId;
                     if(!nowBeaconKey.equals(key)){
                         if(checkBeacon(key)) nowBeaconKey=key;
@@ -200,7 +179,7 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
                 }
             }
         });
-        thread.start();
+        beaconThread.start();
     }
 
     private boolean checkBeacon(String key){
@@ -217,7 +196,7 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
         }
         dijkstra = new Dijkstra(NodePoint.maxIndex,start,distance,realNodes);
         routeCheck = dijkstra.getRoute();
-        beaconChangeCallback.callBack(beacon.x,beacon.y);
+        //beaconChangeCallback.callBack(beacon.x,beacon.y);
         refreshImage();
         return true;
     }

@@ -75,7 +75,7 @@ public class BeaconBroadcastGetterFragment extends Fragment{
                              Bundle savedInstanceState){
         view = inflater.inflate(R.layout.fragment_main,container,false);
 
-        init();
+        //init();
 
         return view;
     }
