@@ -42,6 +42,9 @@ public class ClientReceiver extends BroadcastReceiver {
                     public void run() {
                         while (clientBound) {
                             if (!workQueue.isEmpty()) {
+                                // 1. 클리이언트 접속 여부 검사 필요
+                                // 2. 스레드 무한 루프 방지 필요
+                                // 3. 큐 검사 작업 필요
                                 clientService.client.request(Client.Type.Locate, workQueue.poll());
                             }
                         }
