@@ -37,7 +37,7 @@ public class ClientService extends Service {
         handler = new Handler(Looper.getMainLooper());
 
         // 클라이언트 생성
-        client = new Client("172.16.101.221", 12000);
+        client = new Client("172.16.101.48", 12000);
 
         // 클라이언트 접속 성공 이벤트
         client.setOnConnectedListener(new Client.onConnected() {
@@ -82,7 +82,9 @@ public class ClientService extends Service {
         client.setOnDataReceivedListener(new Client.onDataReceived() {
             @Override
             public void onDataReceived(String result, boolean isError) {
-                // 푸시 관련 요청인경우 분석 후 처리 필요
+                // TODO 푸시 관련 요청인경우 분석 후 처리 필요
+                // TODO 재난 메시지를 받은 경우 명준이형에게 브로드캐스트 발송 필요
+                System.out.println(result);
             }
         });
 

@@ -1,7 +1,10 @@
 package com.example.catdog.myapplication;
 
+import android.util.Log;
+
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -24,6 +27,11 @@ public class Client {
     private BufferedWriter bufferedWriter;
 
     private Thread sendThread;
+    private Thread receiveThread;
+
+    private ThreadGroup sendGroup;
+    private ThreadGroup receiveGroup;
+
     private Queue<String> queueSend = new LinkedList<>();
 
     private String ip;
@@ -46,7 +54,7 @@ public class Client {
             bufferedWriter.flush();
 
             // 데이터 전송 성공 이벤트 발생
-            onDataSentListener.onDataSent("1" + msg, false);
+            onDataSentListener.onDataSent(msg, false);
         } catch (IOException e) {
             // 데이터 전송 실패 이벤트 발생
             onDataSentListener.onDataSent(msg, true);
@@ -110,8 +118,7 @@ public class Client {
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
 
             // 작업 스레드 시작
-            startSendThread();
-            startReceiveThread();
+            startThread();
 
             // 소켓 이벤트 발생
             onConnectedListener.onConnected(this.ip, this.port);
@@ -163,9 +170,23 @@ public class Client {
     //endregion
 
     //region [ 소켓 스레드 서비스 ]
-    private void startSendThread() {
-        // 스레드 무한 루프 방지 필요
-        sendThread = new Thread(new Runnable() {
+    private void startThread() {
+        createReceiveThread();
+        createSendThread();
+
+        receiveThread.start();
+        sendThread.start();
+    }
+
+    private void createSendThread() {
+        // 스레드 그룹 생성
+        sendGroup = new ThreadGroup(receiveGroup, "SendGroup");
+
+        // 데몬으로 설정
+        sendGroup.setDaemon(true);
+
+        // 스레드 생성
+        sendThread = new Thread(sendGroup, new Runnable() {
             @Override
             public void run() {
                 while (socket != null) {
@@ -184,13 +205,14 @@ public class Client {
                 }
             }
         });
-
-        sendThread.start();
     }
 
-    private void startReceiveThread() {
-        // 스레드 무한 루프 방지 필요
-        new Thread(new Runnable() {
+    private void createReceiveThread() {
+        // 스레드 그룹 생성
+        receiveGroup = new ThreadGroup("ReceiveGroup");
+
+        // 스레드 생성
+        receiveThread = new Thread(receiveGroup, new Runnable() {
             @Override
             public void run() {
                 while(socket != null) {
@@ -199,12 +221,15 @@ public class Client {
                         if (msg != null) {
                             onDataReceivedListener.onDataReceived(msg.trim(), false);
                         }
+                    } catch (SocketTimeoutException e) {
+                        // 타임 아웃 메시지
                     } catch (IOException e) {
                         onDataReceivedListener.onDataReceived(e.getMessage(), true);
+                        return;
                     }
                 }
             }
-        }).start();
+        });
     }
     //endregion
 

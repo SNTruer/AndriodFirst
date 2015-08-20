@@ -19,6 +19,10 @@ import java.util.Queue;
  */
 public class ClientReceiver extends BroadcastReceiver {
 
+    // TODO 정적 브로드캐스트 리시버 삭제 후 서비스쪽에서 동적으로 브로드캐스트 수신하도록 수정
+    // TODO 위치를 바로 발송하지 말고 멤버 변수에 보관 후 발송 및 실패시 큐의 항목을 발송 재시도
+    // TODO 서비스 시작시 바로 소켓 접속하지 말고 브로드캐스트 받은 경우에만 null 검사 후 소켓 연결
+
     private static Thread checkThread;
     private static Queue<ClientTypeLocation> workQueue = new LinkedList<>();
 
