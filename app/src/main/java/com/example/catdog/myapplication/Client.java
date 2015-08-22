@@ -1,7 +1,5 @@
 package com.example.catdog.myapplication;
 
-import android.util.Log;
-
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -111,7 +109,6 @@ public class Client {
         try {
             // 소켓 초기화
             socket = new Socket(this.ip, this.port);
-            socket.setSoTimeout(30*1000);
             inputStream = socket.getInputStream();
             bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             outputStream = socket.getOutputStream();
