@@ -34,6 +34,8 @@ public class Client {
 
     private String ip;
     private int port;
+
+    public boolean isConnected = false;
     //endregion
 
     //region [ 생성자 ]
@@ -44,7 +46,7 @@ public class Client {
     //endregion
 
     //region [ 내부 함수 ]
-    private void clientSend(String msg) {
+    public void clientSend(String msg) {
         try {
             // 버퍼에 작성
             bufferedWriter.write(msg);
@@ -119,6 +121,9 @@ public class Client {
 
             // 소켓 이벤트 발생
             onConnectedListener.onConnected(this.ip, this.port);
+
+            // 접속 플래그 설정
+            isConnected = true;
         } catch (IOException e) {
             // 소켓 초기화 실패
             onConnectErrorListener.onConnectError(this.ip, this.port, e.getMessage());
@@ -141,6 +146,9 @@ public class Client {
         try {
             // 소켓 종료
             clientClose();
+
+            // 접속 플래그 설정
+            isConnected = false;
         } catch (Exception e) {
             // 소켓 종료 오류
             e.printStackTrace();
