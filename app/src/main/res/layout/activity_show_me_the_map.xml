@@ -8,21 +8,20 @@
     tools:context="com.example.catdog.myapplication.MapViewActivity">
 
 
+    <LinearLayout
+        android:id="@+id/testlinear"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:layout_weight="9"></LinearLayout>
     <HorizontalScrollView
         android:id="@+id/maphorizontalscrollview"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="9"
-        >
+        android:layout_height="0dp">
         <ScrollView
             android:id="@+id/mapscrollview"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-        <LinearLayout
-            android:id="@+id/testlinear"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"></LinearLayout>
         </ScrollView>
     </HorizontalScrollView>
     <LinearLayout

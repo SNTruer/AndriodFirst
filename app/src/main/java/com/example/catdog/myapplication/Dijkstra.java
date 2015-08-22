@@ -10,7 +10,7 @@ import java.util.PriorityQueue;
 public class Dijkstra {
     int N;
     boolean[] check;
-    boolean[] routeCheck;
+    int[] routeCheck;
     double[] bestDistance;
     double[][] distance;
     NodePoint[] nodePoints;
@@ -19,18 +19,33 @@ public class Dijkstra {
     int endPoint;
     PriorityQueue<BeaconForDijkstra> queue;
 
+    public class BeaconForDijkstra implements Comparable<BeaconForDijkstra> {
+        int point;
+        double distance;
+
+        public BeaconForDijkstra(int point,double distance){
+            this.point=point;
+            this.distance=distance;
+        }
+
+        @Override
+        public int compareTo(BeaconForDijkstra another) {
+            return (this.distance>another.distance) ? 1 : (this.distance==another.distance) ? 0 : -1;
+        }
+    }
+
     public Dijkstra(int N,int startPoint,double[][] distance,NodePoint[] nodePoints){
         this.N=N;
         this.startPoint=startPoint;
         this.distance=distance;
         this.nodePoints=nodePoints;
         check=new boolean[N+1];
-        routeCheck=new boolean[N+1];
+        routeCheck=new int[N+1];
         bestDistance=new double[N+1];
         parent=new int[N+1];
     }
 
-    public boolean[] getRoute(){
+    public int[] getRoute(){
         queue = new PriorityQueue<>();
         queue.add(new BeaconForDijkstra(startPoint,0));
         BeaconForDijkstra data;
@@ -67,11 +82,12 @@ public class Dijkstra {
             }
         }
 
-        routeCheck[startPoint]=true;
+        int cnt=0;
         while(x!=startPoint){
-            routeCheck[x]=true;
+            routeCheck[x]=++cnt;
             x=parent[x];
         }
+        routeCheck[startPoint]=++cnt;
 
         return routeCheck;
     }

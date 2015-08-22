@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,9 +30,9 @@ import java.util.HashMap;
 /**
  * Created by imcheck on 2015. 7. 30..
  */
-public class MapCustomView extends View implements Runnable, View.OnTouchListener{
+public class MapCustomView extends TouchImageView implements Runnable, View.OnTouchListener{
 
-    private float scaleFactor = 3.0f;
+    private float scaleFactor = 1.0f;
     public int height;
     public int width;
     private String mapUrl;
@@ -40,15 +42,16 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
     public ScaleGestureDetector scaleDetector;
     private Context context;
     private Dijkstra dijkstra;
-    private boolean[] routeCheck = new boolean[101];
-    private BeaconDataReceiver beaconDataReceiver;
+    private int[] routeCheck = new int[101];
     private String nowBeaconKey;
     private NodePoint startPoint;
-    public BeaconChangeCallback beaconChangeCallback;
+    public Thread beaconThread;
 
-    public interface BeaconChangeCallback{
-        public void callBack(double x,double y);
+    public class NodeBeacon {
+
+        double x, y;
     }
+
 
     public MapCustomView(Context context) {
         super(context);
@@ -63,50 +66,26 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
         this.context=context;
     }
 
-    //@Override
-    /*public void onMeasure(int widthMeasureSpec,int heightMeasureSpec){
-        Log.d("map", "나는 onmeasure");
-        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        int heightSize =0;
-        switch (heightMode){
-            case MeasureSpec.UNSPECIFIED: heightSize = heightMeasureSpec;break;
-            case MeasureSpec.AT_MOST: heightSize = MeasureSpec.getSize(heightMeasureSpec);break;
-            case MeasureSpec.EXACTLY: heightSize = MeasureSpec.getSize(heightMeasureSpec);break;
-        }
-
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int widthSize =0;
-        switch (widthMode){
-            case MeasureSpec.UNSPECIFIED: widthSize = widthMeasureSpec;break;
-            case MeasureSpec.AT_MOST: widthSize = MeasureSpec.getSize(widthMeasureSpec);break;
-            case MeasureSpec.EXACTLY: widthSize = MeasureSpec.getSize(widthMeasureSpec);break;
-        }
-
-        widthSize=(int)(width*(scaleFactor+0.5f));
-        heightSize=(int)(height*(scaleFactor+0.5f));
-        setMeasuredDimension(widthSize, heightSize);
-    }*/
-
     public void changeSize()
     {
         this.post(new Runnable() {
             @Override
             public void run() {
-                ViewGroup.LayoutParams params = MapCustomView.this.getLayoutParams();
-                params.width = (int) (width * (scaleFactor));
-                params.height = (int) (height * (scaleFactor));
-                setLayoutParams(params);
+                //ViewGroup.LayoutParams params = MapCustomView.this.getLayoutParams();
+                //params.width = (int) (width * (scaleFactor));
+                //params.height = (int) (height * (scaleFactor));
+                MapCustomView.super.measure(MeasureSpec.makeMeasureSpec((int)(width*scaleFactor),MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec((int)(height*scaleFactor),MeasureSpec.EXACTLY));
+                //setLayoutParams(params);
             }
         });
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public void init(String url,Document doc,BeaconDataReceiver receiver,BeaconChangeCallback beaconChangeCallback)
+    public void init(String url,Document doc)
     {
-        this.beaconChangeCallback=beaconChangeCallback;
-        beaconDataReceiver=receiver;
-        setOnTouchListener(this);
-        scaleDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.OnScaleGestureListener() {
+        //setOnTouchListener(this);
+        /*scaleDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.OnScaleGestureListener() {
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
                 scaleFactor*=detector.getScaleFactor();
@@ -126,8 +105,11 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
                 changeSize();
                 Log.d("map","변화 종료");
             }
-        });
-        scaleDetector.setQuickScaleEnabled(true);
+        });*/
+
+        //scaleDetector.setQuickScaleEnabled(true);
+        beaconCircle=BitmapFactory.decodeResource(getResources(),R.drawable.beaconcircle);
+        beaconCircle = Bitmap.createScaledBitmap(beaconCircle,30,30,true);
 
         setMapURL(url);
         Thread thread = new Thread(this);
@@ -137,11 +119,11 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
     }
 
     Bitmap m_bitmap;
+    Bitmap beaconCircle;
     public void run()
     {
         try {
             URL url = new URL(getMapURL());
-
             HttpURLConnection con = (HttpURLConnection)url.openConnection();
             InputStream is = con.getInputStream();
             int status = con.getResponseCode();
@@ -169,12 +151,20 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
             width = m_bitmap.getWidth();
             Log.d("map", "크기 재는게 끝남");
             //measure(MeasureSpec.makeMeasureSpec(width,MeasureSpec.EXACTLY),MeasureSpec.makeMeasureSpec(height,MeasureSpec.EXACTLY));
-            changeSize();
+            //changeSize();
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    MapCustomView.super.setImageBitmap(Bitmap.createBitmap(width,height, Bitmap.Config.RGB_565));
+                    //MapCustomView.super.setImageBitmap(m_bitmap);
+                }
+            });
 
             refreshImage();
 
         } catch (IOException e) {
             e.printStackTrace();
+            Log.d("map",e.toString());
         }
     }
 
@@ -184,15 +174,19 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
         // postInvalidate() 는 언제나 가능
     }
 
+    public void onDestroy(){
+    }
+
     private void startBeacon(){
         nowBeaconKey=new String("");
-        Thread thread = new Thread(new Runnable() {
+        beaconThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(true){
-                    if(beaconDataReceiver.beaconList==null) continue;
-                    if(beaconDataReceiver.beaconList.size()==0) continue;
-                    BeaconData data=beaconDataReceiver.beaconList.get(0);
+                    if(BeaconDataReceiver.beaconList==null) continue;
+                    if(BeaconDataReceiver.beaconList.size()==0) continue;
+                    BeaconData data=BeaconDataReceiver.beaconList.get(0);
+                    if(data==null) continue;
                     String key=data.Uuid+"-"+data.MajorId+"-"+data.MinorId;
                     if(!nowBeaconKey.equals(key)){
                         if(checkBeacon(key)) nowBeaconKey=key;
@@ -200,10 +194,12 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
                 }
             }
         });
-        thread.start();
+        //beaconThread.start();
     }
 
-    private boolean checkBeacon(String key){
+    public boolean checkBeacon(String key){
+        if(nowBeaconKey!=null && nowBeaconKey.equals(key)) return false;
+        nowBeaconKey=key;
         NodeBeacon beacon = realBeacons.get(key);
         if(beacon==null) return false;
         double min = Double.MAX_VALUE;
@@ -217,7 +213,7 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
         }
         dijkstra = new Dijkstra(NodePoint.maxIndex,start,distance,realNodes);
         routeCheck = dijkstra.getRoute();
-        beaconChangeCallback.callBack(beacon.x,beacon.y);
+        //beaconChangeCallback.callBack(beacon.x,beacon.y);
         refreshImage();
         return true;
     }
@@ -229,11 +225,18 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (m_bitmap == null || realNodes == null)
+        super.onDraw(canvas);
+        canvas.scale(super.normalizedScale, super.normalizedScale);
+        canvas.setMatrix(super.matrix);
+        Log.d("map","맵 그리기 시작합니다.");
+        if (m_bitmap == null || realNodes == null) {
+            if(m_bitmap==null) Log.d("map","비트맵이 널");
+            else Log.d("map","realNodes가 널");
             return;
+        }
 
-        canvas.scale(scaleFactor, scaleFactor);
         canvas.drawBitmap(m_bitmap, 0, 0, null);
+        Log.d("map","맵 그리기 시작합니다.");
 
         Paint paint = new Paint();
         if(nowBeaconKey !=null){
@@ -241,6 +244,8 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
             NodeBeacon beacon = realBeacons.get(nowBeaconKey);
             if(beacon!=null) {
                 canvas.drawCircle((float) beacon.x, (float) beacon.y, 10, paint);
+                //canvas.drawBitmap(beaconCircle,(float)beacon.x,(float)beacon.y,null);
+
                 paint.setStrokeWidth(3);
                 canvas.drawLine((float) beacon.x, (float) beacon.y, (float) startPoint.x, (float) startPoint.y, paint);
             }
@@ -248,19 +253,63 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
 
         for (int i = 1; i <= NodePoint.maxIndex; i++) {
 
-            if ((realNodes[i].exit == 1 || routeCheck[i])) paint.setColor(Color.BLUE);
+            if ((realNodes[i].exit == 1 || routeCheck[i]>0)) paint.setColor(Color.BLUE);
             else paint.setColor(Color.RED);
             canvas.drawCircle((float) realNodes[i].x, (float) realNodes[i].y, 10, paint);
+        }
+
+        for(int i=1;i<=NodePoint.maxIndex;i++){
             for (int j = i + 1; j <= NodePoint.maxIndex; j++) {
 
                 if (distance[i][j] > 0) {
-                    if(routeCheck[i] && routeCheck[j]) paint.setColor(Color.BLUE);
-                    else paint.setColor(Color.RED);
                     paint.setStrokeWidth(3);
-                    canvas.drawLine((float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, paint);
+                    if(routeCheck[i]>0 && routeCheck[j]>0 && Math.abs(routeCheck[i]-routeCheck[j])==1)
+                    {
+                        paint.setColor(Color.BLUE);
+                        canvas.drawLine((float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, paint);
+                        if(routeCheck[i]>routeCheck[j]) fillArrow(canvas, (float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, Color.GREEN);
+                        else fillArrow(canvas, (float) realNodes[j].x, (float) realNodes[j].y, (float) realNodes[i].x, (float) realNodes[i].y, Color.GREEN);
+                    }
+                    else {
+                        paint.setColor(Color.RED);
+                        canvas.drawLine((float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, paint);
+                    }
                 }
             }
         }
+    }
+
+    private void fillArrow(Canvas canvas, float x0, float y0, float x1, float y1,int color) {
+
+        Paint paint = new Paint();
+        paint.setColor(color);
+        paint.setStrokeWidth(3);
+        paint.setStyle(Paint.Style.FILL);
+
+        float deltaX = x1 - x0;
+        float deltaY = y1 - y0;
+        float frac = (float) 0.1;
+
+        float point_x_1 = x0 + (float) ((1 - frac) * deltaX + frac * deltaY);
+        float point_y_1 = y0 + (float) ((1 - frac) * deltaY - frac * deltaX);
+
+        float point_x_2 = x1;
+        float point_y_2 = y1;
+
+        float point_x_3 = x0 + (float) ((1 - frac) * deltaX - frac * deltaY);
+        float point_y_3 = y0 + (float) ((1 - frac) * deltaY + frac * deltaX);
+
+        Path path = new Path();
+        path.setFillType(Path.FillType.EVEN_ODD);
+
+        path.moveTo(point_x_1, point_y_1);
+        path.lineTo(point_x_2, point_y_2);
+        path.lineTo(point_x_3, point_y_3);
+        path.lineTo(point_x_1, point_y_1);
+        path.lineTo(point_x_1, point_y_1);
+        path.close();
+
+        canvas.drawPath(path, paint);
     }
 
     public void setMapURL(String url){
@@ -335,7 +384,7 @@ public class MapCustomView extends View implements Runnable, View.OnTouchListene
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        scaleDetector.onTouchEvent(event);
+        //scaleDetector.onTouchEvent(event);
 
         return true;
     }
