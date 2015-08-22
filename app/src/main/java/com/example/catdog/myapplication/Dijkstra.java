@@ -19,6 +19,21 @@ public class Dijkstra {
     int endPoint;
     PriorityQueue<BeaconForDijkstra> queue;
 
+    public class BeaconForDijkstra implements Comparable<BeaconForDijkstra> {
+        int point;
+        double distance;
+
+        public BeaconForDijkstra(int point,double distance){
+            this.point=point;
+            this.distance=distance;
+        }
+
+        @Override
+        public int compareTo(BeaconForDijkstra another) {
+            return (this.distance>another.distance) ? 1 : (this.distance==another.distance) ? 0 : -1;
+        }
+    }
+
     public Dijkstra(int N,int startPoint,double[][] distance,NodePoint[] nodePoints){
         this.N=N;
         this.startPoint=startPoint;

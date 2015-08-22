@@ -33,11 +33,6 @@
         <service android:name=".BeaconService"
             android:enabled="true"
             />
-        <receiver android:name=".BeaconDataReceiver">
-            <intent-filter>
-                <action android:name="swmaestro.ship.broadcast.local"/>
-            </intent-filter>
-        </receiver>
 
         <receiver android:name=".ClientReceiver" >
             <intent-filter>

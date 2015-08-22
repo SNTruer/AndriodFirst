@@ -4,20 +4,21 @@ import android.annotation.TargetApi;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 /**
@@ -25,6 +26,14 @@ import java.util.Vector;
  */
 public class BeaconService extends Service implements Runnable {
     private final IBinder binder = new LocalBinder();
+    private static final String BROADCAST_LOCATE = "swmaestro.ship.broadcast.locate";
+    private static final String EMERGENCY_CALL = "swmaestro.ship.broadcast.emergency";
+    private static final String CALL_MAP = "swmaestro.ship.broadcast.callmap";
+    private static final String SERIAL_UUID = "24ddf4118cf1440c87cde368daf9c93e";
+
+    public interface BeaconChangeCallback {
+        public void method(BeaconData data);
+    }
 
     public class LocalBinder extends Binder {
         BeaconService getService() {
@@ -33,17 +42,22 @@ public class BeaconService extends Service implements Runnable {
     }
 
     private BluetoothAdapter m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    private static boolean onlyOneFlag;
-    private BeaconDataReceiver receiver;
-    private BeaconDataSender sender;
     private HashMap<String, BeaconData> beaconDataHashMap;
     private Hashtable<String, BeaconData> listBeaconHash;
     private HashMap<Integer, HashMap<Integer, MapData> > groupMapHash;
+    private BroadcastReceiver receiver;
     Vector<BeaconData> beaconList;
     private Thread serviceThread;
+    private BeaconData nearestBeacon;
+    private boolean emergencyFlag = true;
+    private BeaconChangeCallback changeCallback;
+    private boolean stopFlag=false,sortFlag=false;
+    private long time,stopTime,sortTime;
     private String nowMap;
-    private String parameter;
+
     private static final String BROADCAST_LOCAL = "swmaestro.ship.broadcast.local";
+
+    private BluetoothAdapter.LeScanCallback scanCallBack;
 
     @Override
     public void run() {
@@ -53,7 +67,7 @@ public class BeaconService extends Service implements Runnable {
                     Collections.sort(beaconList);
                 }
                 Intent intent = new Intent(BROADCAST_LOCAL);
-                intent.putExtra("BeaconDataVector",beaconList);
+                intent.putExtra("BeaconData",beaconList.get(0));
                 sendBroadcast(intent);
                 Log.d("suck","서비스가 돌고 있음");
                 Thread.sleep(1000);
@@ -74,37 +88,88 @@ public class BeaconService extends Service implements Runnable {
 
         init();
         startBeaconSearch();
-        serviceThread=new Thread(this);
-        serviceThread.start();
+        tempCallMap();
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void startBeaconSearch(){
-        m_BluetoothAdapter.startLeScan(new BluetoothAdapter.LeScanCallback() {
-
+        /*TimerTask timerTask = new TimerTask() {
             @Override
-            public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-                if (device.getName() == null) return;
-                AnalyzedPacket pkt = new AnalyzedPacket(rssi, scanRecord);
-
-                //beaconDataHashMap은 서버 DB에서 비콘 정보를 가져온 데이터를 담고 있음, 이것이 null이라면 우리쪽이랑 상관없는 비콘이란 것이므로 패스
-                BeaconData data = beaconDataHashMap.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
-                if(data==null) return;
-
-                //listBeaconHash는 내 주변의 비콘의 정보를 가진 map임.
-                data = listBeaconHash.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
-                if (data == null) {
-                    data = beaconDataHashMap.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
-                    data.Distance=pkt.Distance;
-                    listBeaconHash.put(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId,data);
-                    beaconList.add(data);
-                } else {
-                    data.Distance = pkt.Distance;
-                }
+            public void run() {
+                stopBeaconSearch();
             }
-        });
+        };
+        Timer timer = new Timer();
+        timer.schedule(timerTask, 3000);
+
+        for(int i=1;i<=5;i++){
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    synchronized (beaconList){
+                        Collections.sort(beaconList);
+                    }
+                    if(nearestBeacon==null || beaconList.get(0)!=nearestBeacon){
+                        if(beaconList==null || beaconList.size()==0) return;
+                        nearestBeacon=beaconList.get(0);
+                        Intent intent = new Intent(BROADCAST_LOCATE);
+                        Log.d("whatthe","최근접 비콘 변경");
+                        sendBroadcast(intent);
+                        if(changeCallback !=null)
+                        {
+                            Log.d("whatthe","콜백이 널이 아님");
+                            changeCallback.method(nearestBeacon);
+                        }
+                    }
+                }
+            };
+            timer = new Timer();
+            timer.schedule(timerTask,i*500);
+        }*/
+        m_BluetoothAdapter.startLeScan(scanCallBack);
     }
 
+    private void beaconSort(){
+        synchronized (beaconList){
+            Collections.sort(beaconList);
+        }
+        if(nearestBeacon==null || beaconList.get(0)!=nearestBeacon){
+            if(beaconList==null || beaconList.size()==0) return;
+            nearestBeacon=beaconList.get(0);
+            Intent intent = new Intent(BROADCAST_LOCATE);
+            Log.d("whatthe","최근접 비콘 변경");
+            sendBroadcast(intent);
+            if(changeCallback !=null)
+            {
+                Log.d("whatthe","콜백이 널이 아님");
+                changeCallback.method(nearestBeacon);
+            }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    private void stopBeaconSearch(){
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                startBeaconSearch();
+            }
+        };
+        Timer timer = new Timer();
+        timer.schedule(timerTask,3000);
+        m_BluetoothAdapter.stopLeScan(scanCallBack);
+    }
+
+    public void setChangeCallback(BeaconChangeCallback callback){
+        Log.d("whatthe","콜백등록");
+        this.changeCallback=callback;
+    }
+
+    public BeaconData getNearestBeacon(){
+        return nearestBeacon;
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void init(){
         //요 부분에서 맵 리스트를 갖고 올 것.
 
@@ -128,16 +193,98 @@ public class BeaconService extends Service implements Runnable {
 
         listBeaconHash=new Hashtable<>();
         beaconList=new Vector<>();
+
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                switch (action){
+                    case EMERGENCY_CALL:emergencyFlag=true;break;
+                    case CALL_MAP:
+                        if(!emergencyFlag) break;
+                        Intent mapIntent = new Intent(context, MapViewActivity.class);
+                        mapIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        mapIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        Integer groupIdx =(Integer)intent.getSerializableExtra("groupIdx");
+                        Integer mapIdx = (Integer)intent.getSerializableExtra("mapIdx");
+                        mapIntent.putExtra("groupIdx",groupIdx);
+                        mapIntent.putExtra("mapIdx",mapIdx);
+                        context.startActivity(mapIntent);
+                        break;
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BROADCAST_LOCAL);
+        filter.addAction(EMERGENCY_CALL);
+        filter.addAction(CALL_MAP);
+        registerReceiver(receiver, filter);
+
+        scanCallBack = new BluetoothAdapter.LeScanCallback() {
+            @Override
+            public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+                if (device.getName() == null) return;
+                time = System.currentTimeMillis();
+                if (!stopFlag) {
+                    stopTime = time;
+                    stopFlag = true;
+                }
+                if(!sortFlag){
+                    sortTime=time;
+                    sortFlag=true;
+                }
+                if (time-stopTime >= 3000) {
+                    Log.d("whatthe","비콘스톱");
+                    stopFlag=false;
+                    stopBeaconSearch();
+                }
+                if(time-sortTime>=600){
+                    Log.d("whatthe","비콘정렬");
+                    sortFlag=false;
+                    beaconSort();
+                }
+
+                AnalyzedPacket pkt = new AnalyzedPacket(rssi, scanRecord);
+
+                //beaconDataHashMap은 서버 DB에서 비콘 정보를 가져온 데이터를 담고 있음, 이것이 null이라면 우리쪽이랑 상관없는 비콘이란 것이므로 패스
+                BeaconData data = beaconDataHashMap.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
+                if (data == null) return;
+
+                //UUID가 우리꺼랑 다르면 패스
+                if (!pkt.Uuid.equals(SERIAL_UUID)) return;
+
+                //listBeaconHash는 내 주변의 비콘의 정보를 가진 map임.
+                data = listBeaconHash.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
+                //Log.d("whatthe","beaconscan");
+                if (data == null) {
+                    data = beaconDataHashMap.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
+                    data.Distance = pkt.Distance;
+                    listBeaconHash.put(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId, data);
+                    beaconList.add(data);
+                } else {
+                    data.Distance = pkt.Distance;
+                }
+            }
+        };
     }
+
+    private void tempCallMap(){
+        Intent intent = new Intent(CALL_MAP);
+        intent.putExtra("groupIdx",new Integer(1));
+        intent.putExtra("mapIdx",new Integer(1));
+        sendBroadcast(intent);
+    }
+
 
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public void onDestroy() {
-        Log.d("suck","서비스 파괴");
-        serviceThread.interrupt();
+        m_BluetoothAdapter.stopLeScan(scanCallBack);
+        Log.d("whatthe", "서비스 파괴");
     }
 }

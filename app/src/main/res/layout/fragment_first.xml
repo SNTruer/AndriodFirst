@@ -31,18 +31,12 @@
             android:background="@mipmap/btn_group" />
 
         <ImageButton
-            android:id="@+id/broadcastbutton"
+            android:id="@+id/button2"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
             android:background="@mipmap/btn_broadcast" />
-
-        <Button
-            android:layout_width="69dp"
-            android:layout_height="wrap_content"
-            android:text="브로드"
-            android:id="@+id/button2" />
 
         <Button
             android:layout_width="wrap_content"

@@ -92,21 +92,6 @@ public class FirstFragment extends Fragment {
         });
     }
 
-    private void initBeaconTestBtn()
-    {
-        ImageButton btn = (ImageButton)view.findViewById(R.id.broadcastbutton);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Fragment frg = new BeaconBroadcastGetterFragment();
-                FragmentTransaction trs = getFragmentManager().beginTransaction();
-                trs.add(R.id.firstlayout,frg);
-                trs.addToBackStack(null);
-
-                trs.commit();
-            }
-        });
-    }
 
     private void initServiceBtn(){
         final CircleButton btn = (CircleButton)view.findViewById(R.id.servicebutton);
@@ -118,6 +103,7 @@ public class FirstFragment extends Fragment {
                         serviceIntent=new Intent(getActivity(),BeaconService.class);
                         //getActivity().startService(serviceIntent);
                         getActivity().bindService(serviceIntent,serviceConnection, Context.BIND_AUTO_CREATE);
+                        //getActivity().startService(new Intent(getActivity(), ClientService.class));
                         btn.setColor(Color.RED);
                         textView.setText("서비스를 종료하시려면 버튼을 눌러주세요");
                     }
@@ -141,7 +127,6 @@ public class FirstFragment extends Fragment {
         initFragment();
         initSearchBtn();
         initGetGroupBtn();
-        initBeaconTestBtn();
         initServiceBtn();
 
         // 브로드캐스트 테스트 전용 버튼

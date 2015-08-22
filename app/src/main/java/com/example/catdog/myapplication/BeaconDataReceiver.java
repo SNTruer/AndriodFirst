@@ -20,16 +20,17 @@ public class BeaconDataReceiver extends BroadcastReceiver {
     public static ArrayList<BeaconData> beaconList;
     private static String nowMap;
     private static final String BROADCAST_LOCAL = "swmaestro.ship.broadcast.local";
+    private static final String EMERGENCY_CALL = "swmaestro.ship.broadcast.emergency";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
 
         switch (action) {
+            case EMERGENCY_CALL:break;
             case BROADCAST_LOCAL:
-            beaconList = (ArrayList<BeaconData>) intent.getSerializableExtra("BeaconDataVector");
-            if (beaconList == null || beaconList.size() == 0) return;
-            BeaconData data = beaconList.get(0);
+            //beaconList = (ArrayList<BeaconData>) intent.getSerializableExtra("BeaconData");
+            BeaconData data = (BeaconData) intent.getSerializableExtra("BeaconData");
             if(data==null) return;
             String key = data.GroupIdx + "-" + data.MapIdx;
             if (nowMap == null || !nowMap.equals(key)) {
