@@ -112,7 +112,7 @@ public class ClientService extends Service {
         // 클라이언트 처리
         if (client == null) {
             // 클라이언트 생성
-            client = new Client("192.168.11.8", 12000);
+            client = new Client("172.16.101.142", 12000);
 
             // 클라이언트 접속 성공 이벤트
             client.setOnConnectedListener(new Client.onConnected() {
