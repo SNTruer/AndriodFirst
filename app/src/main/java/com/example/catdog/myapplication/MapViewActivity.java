@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -144,15 +145,15 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
 
         String parameter = null;
         try {
-            parameter = URLEncoder.encode("group_idx", "UTF-8") + "=" + ((Integer)groupIdx).toString();
+            parameter = URLEncoder.encode("map_id", "UTF-8") + "=" + ((Integer)mapIdx).toString();
             ServerUtill.mapRequest(parameter,new ServerUtill.OnComplete(){
 
                 @Override
                 public void onComplete(byte[] byteArray) {
                     try {
-                        HashMap<Integer, MapData> map = MapData.getMapHashMapFromDom(DomChanger.byteToDom(byteArray));
-                        imageUrl = map.get(mapIdx).imageUrl;
-                        mapDetailString = map.get(mapIdx).mapDetailString;
+                        MapData map = MapData.getMapDataFromDom(DomChanger.byteToDom(byteArray));
+                        imageUrl = map.imageUrl;
+                        mapDetailString = map.mapDetailString;
                         MapViewActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -200,6 +201,8 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
         Button cancel = (Button) findViewById(R.id.cancel);
         cancel.setOnClickListener(this);
     }
+
+    int p=0;
     @Override
     public void onClick(View v) {
 
@@ -208,10 +211,13 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
             case R.id.location : // Get the present location and draw it
                 Intent intent = new Intent(CALL_MAP);
                 intent.putExtra("groupIdx",new Integer(1));
-                intent.putExtra("mapIdx",new Integer(1));
+                intent.putExtra("mapIdx",new Integer(6));
                 sendBroadcast(intent);
                 break;
             case R.id.navigation : // Calculate the shortest path and draw it
+                p++;
+                Log.d("whatthe",new Integer(p).toString());
+                mapView.zoomPointer(p);
                 break;
             case R.id.cancel : // Erase all of lines except exit gates.
 
@@ -227,7 +233,7 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
 
     @Override
     public void onDestroy(){
-        mapView.onDestroy();
+//        mapView.onDestroy();
         super.onDestroy();
         Log.d("whatthe","혼돈파괴");
         unbindService(serviceConnection);

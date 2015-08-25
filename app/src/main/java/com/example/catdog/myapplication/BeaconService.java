@@ -26,9 +26,10 @@ import java.util.Vector;
  */
 public class BeaconService extends Service implements Runnable {
     private final IBinder binder = new LocalBinder();
-    private static final String BROADCAST_LOCATE = "swmaestro.ship.broadcast.locate";
-    private static final String EMERGENCY_CALL = "swmaestro.ship.broadcast.emergency";
-    private static final String CALL_MAP = "swmaestro.ship.broadcast.callmap";
+    private static final String BROADCAST_LOCATE = "swmaestro.ship.broadcast.LOCATE";
+    private static final String EMERGENCY_CALL = "swmaestro.ship.broadcast.EMERGENCY";
+    private static final String CALL_MAP = "swmaestro.ship.broadcast.CALLMAP";
+    private static final String BROADCAST_LOCAL = "swmaestro.ship.broadcast.local";
     private static final String SERIAL_UUID = "24ddf4118cf1440c87cde368daf9c93e";
 
     public interface BeaconChangeCallback {
@@ -55,7 +56,6 @@ public class BeaconService extends Service implements Runnable {
     private long time,stopTime,sortTime;
     private String nowMap;
 
-    private static final String BROADCAST_LOCAL = "swmaestro.ship.broadcast.local";
 
     private BluetoothAdapter.LeScanCallback scanCallBack;
 
@@ -271,7 +271,7 @@ public class BeaconService extends Service implements Runnable {
     private void tempCallMap(){
         Intent intent = new Intent(CALL_MAP);
         intent.putExtra("groupIdx",new Integer(1));
-        intent.putExtra("mapIdx",new Integer(1));
+        intent.putExtra("mapIdx",new Integer(6));
         sendBroadcast(intent);
     }
 

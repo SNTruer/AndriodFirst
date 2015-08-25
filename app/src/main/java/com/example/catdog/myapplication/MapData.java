@@ -61,10 +61,31 @@ public class MapData extends GroupMapSuperData implements Serializable {
                 //Document mapDocument = DomChanger.stringToDom(ele.getElementsByTagName("map").item(0).getTextContent().trim());
                 MapData mapData = new MapData(name,imageUrl,mapString);
                 Integer mapIdx = Integer.parseInt(ele.getElementsByTagName("map_idx").item(0).getTextContent().trim());
-                hashMap.put(mapIdx,mapData);
+                hashMap.put(mapIdx, mapData);
             }
         }
 
         return hashMap;
+    }
+
+    public static MapData getMapDataFromDom(Document document) throws Exception{
+        NodeList nodeList = document.getElementsByTagName("map");
+        int count = nodeList.getLength();
+        MapData mapData = null;
+
+        for (int i = 0; i < count; i++) {
+            Element ele = (Element) nodeList.item(i);
+
+            if (ele.hasChildNodes()) {
+                String name = ele.getElementsByTagName("name").item(0).getTextContent().trim();
+                String imageUrl = ele.getElementsByTagName("image").item(0).getTextContent().trim();
+                String mapString = ele.getElementsByTagName("map").item(0).getTextContent().trim();
+                //Document mapDocument = DomChanger.stringToDom(ele.getElementsByTagName("map").item(0).getTextContent().trim());
+                mapData = new MapData(name,imageUrl,mapString);
+                break;
+            }
+        }
+
+        return mapData;
     }
 }

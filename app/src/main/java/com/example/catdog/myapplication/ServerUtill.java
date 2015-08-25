@@ -65,7 +65,7 @@ public class ServerUtill {
             @Override
             public void run() {
                 try{
-                    String urlstr = "http://www.webengine.co.kr/Escape/?page=api&type=get_map_list";
+                    String urlstr = "http://www.webengine.co.kr/Escape/?page=api&type=get_map_info";
                     URL url = new URL(urlstr);
                     URLConnection con = url.openConnection();
                     con.setDoOutput(true);
