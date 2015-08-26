@@ -75,7 +75,7 @@ public class TouchImageView extends ImageView {
     private Context context;
     private Fling fling;
 
-    private ScaleType mScaleType;
+    public ScaleType mScaleType;
 
     private boolean imageRenderedAtLeastOnce;
     private boolean onDrawReady;
@@ -571,10 +571,10 @@ public class TouchImageView extends ImageView {
                 break;
 
             case CENTER_INSIDE:
-                scaleX = scaleY = Math.min(1, Math.min(scaleX, scaleY));
+                scaleX = scaleY = Math.max(1, Math.min(scaleX, scaleY));
 
             case FIT_CENTER:
-                scaleX = scaleY = Math.min(scaleX, scaleY);
+                scaleX = scaleY = Math.max(scaleX, scaleY);
                 break;
 
             case FIT_XY:

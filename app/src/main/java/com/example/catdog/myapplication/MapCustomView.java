@@ -8,7 +8,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.text.method.Touch;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -108,14 +110,13 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
         });*/
 
         //scaleDetector.setQuickScaleEnabled(true);
-        beaconCircle=BitmapFactory.decodeResource(getResources(),R.drawable.beaconcircle);
+        beaconCircle=BitmapFactory.decodeResource(getResources(), R.drawable.beaconcircle);
         beaconCircle = Bitmap.createScaledBitmap(beaconCircle,30,30,true);
 
         setMapURL(url);
         Thread thread = new Thread(this);
         thread.start();
         getXml(doc);
-        startBeacon();
     }
 
     Bitmap m_bitmap;
@@ -149,14 +150,14 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
 
             height = m_bitmap.getHeight();
             width = m_bitmap.getWidth();
-            Log.d("map", "크기 재는게 끝남");
+            Log.d("whatthe", "크기 재는게 끝남");
             //measure(MeasureSpec.makeMeasureSpec(width,MeasureSpec.EXACTLY),MeasureSpec.makeMeasureSpec(height,MeasureSpec.EXACTLY));
             //changeSize();
             post(new Runnable() {
                 @Override
                 public void run() {
-                    MapCustomView.super.setImageBitmap(Bitmap.createBitmap(width,height, Bitmap.Config.RGB_565));
-                    //MapCustomView.super.setImageBitmap(m_bitmap);
+                    //MapCustomView.super.setImageBitmap(Bitmap.createBitmap(width,height, Bitmap.Config.RGB_565));
+                    MapCustomView.super.setImageBitmap(m_bitmap);
                 }
             });
 
@@ -175,26 +176,6 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
     }
 
     public void onDestroy(){
-    }
-
-    private void startBeacon(){
-        nowBeaconKey=new String("");
-        beaconThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true){
-                    if(BeaconDataReceiver.beaconList==null) continue;
-                    if(BeaconDataReceiver.beaconList.size()==0) continue;
-                    BeaconData data=BeaconDataReceiver.beaconList.get(0);
-                    if(data==null) continue;
-                    String key=data.Uuid+"-"+data.MajorId+"-"+data.MinorId;
-                    if(!nowBeaconKey.equals(key)){
-                        if(checkBeacon(key)) nowBeaconKey=key;
-                    }
-                }
-            }
-        });
-        //beaconThread.start();
     }
 
     public boolean checkBeacon(String key){
@@ -225,15 +206,21 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
 
     @Override
     protected void onDraw(Canvas canvas) {
+        //canvas.scale(super.normalizedScale, super.normalizedScale);
+        //canvas.scale(scaleFactor,scaleFactor);
+        //canvas.translate(-10,-10);
         super.onDraw(canvas);
-        canvas.scale(super.normalizedScale, super.normalizedScale);
-        canvas.setMatrix(super.matrix);
-        Log.d("map","맵 그리기 시작합니다.");
+        Log.d("map", "맵 그리기 시작합니다.");
         if (m_bitmap == null || realNodes == null) {
             if(m_bitmap==null) Log.d("map","비트맵이 널");
             else Log.d("map","realNodes가 널");
             return;
         }
+
+        canvas.setMatrix(super.matrix);
+        canvas.translate(0,height/15);
+
+        //super.setZoom(normalizedScale,100,100);
 
         canvas.drawBitmap(m_bitmap, 0, 0, null);
         Log.d("map","맵 그리기 시작합니다.");
@@ -255,14 +242,14 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
 
             if ((realNodes[i].exit == 1 || routeCheck[i]>0)) paint.setColor(Color.BLUE);
             else paint.setColor(Color.RED);
-            canvas.drawCircle((float) realNodes[i].x, (float) realNodes[i].y, 10, paint);
+            canvas.drawCircle((float) realNodes[i].x, (float) realNodes[i].y, width/100, paint);
         }
 
         for(int i=1;i<=NodePoint.maxIndex;i++){
             for (int j = i + 1; j <= NodePoint.maxIndex; j++) {
 
                 if (distance[i][j] > 0) {
-                    paint.setStrokeWidth(3);
+                    paint.setStrokeWidth(width/200);
                     if(routeCheck[i]>0 && routeCheck[j]>0 && Math.abs(routeCheck[i]-routeCheck[j])==1)
                     {
                         paint.setColor(Color.BLUE);
@@ -277,6 +264,16 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
                 }
             }
         }
+
+    }
+
+    public void zoomPointer(final int i){
+        post(new Runnable() {
+            @Override
+            public void run() {
+                MapCustomView.super.setScrollPosition((float)(realNodes[i].x/width),(float)(realNodes[i].y/height));
+            }
+        });
     }
 
     private void fillArrow(Canvas canvas, float x0, float y0, float x1, float y1,int color) {
