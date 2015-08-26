@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
 import android.view.WindowManager;
 
 import org.json.simple.JSONObject;
@@ -39,12 +40,7 @@ public class ClientService extends Service {
     private int maxRetry = 3;
     private static int countConnectError = 0;
     private static int countSendError = 0;
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return START_NOT_STICKY;
-    }
-
+    
     @Override
     public void onCreate() {
 
@@ -167,22 +163,26 @@ public class ClientService extends Service {
             client.setOnDataReceivedListener(new Client.onDataReceived() {
                 @Override
                 public void onDataReceived(final String result, boolean isError) {
+                    Log.d("발송된 내용", result);
+
                     if (!isError) {
                         try {
                             JSONParser jsonParser = new JSONParser();
                             JSONObject jsonObject = (JSONObject) jsonParser.parse(result);
-                            JSONObject jsonObjectContent = (JSONObject) jsonParser.parse(jsonObject.get("content").toString());
 
-                            switch (jsonObject.get("type").toString()) {
+                            String type = (String) jsonObject.get("type");
+                            JSONObject content = (JSONObject) jsonObject.get("content");
+
+                            switch (type) {
                                 case "notify":
                                     final String title;
-                                    if (jsonObjectContent.get("type").toString().equals("warn")) {
+                                    if (content.get("type").toString().equals("warn")) {
                                         title = "경보";
                                     } else {
                                         title = "공지";
                                     }
 
-                                    final String text = jsonObjectContent.get("text").toString();
+                                    final String text = content.get("text").toString();
 
                                     handler.post(new Runnable() {
                                         @Override
