@@ -12,7 +12,6 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Log;
 import android.view.WindowManager;
 
 import org.json.simple.JSONObject;
@@ -21,6 +20,8 @@ import org.json.simple.parser.ParseException;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by SoHyunSeop on 15. 8. 19..
@@ -40,14 +41,20 @@ public class ClientService extends Service {
     private int maxRetry = 3;
     private static int countConnectError = 0;
     private static int countSendError = 0;
-    
+
+    private static Timer timer;
+    private static TimerTask timerTask;
+
+    private final String TYPE_LOCATE = "swmaestro.ship.broadcast.LOCATE";
+    private final String TYPE_EMERGENCY = "swmaestro.ship.broadcast.EMERGENCY";
+
     @Override
     public void onCreate() {
 
         // 리시버 등록
         if (intentFilter == null || broadcastReceiver == null) {
             intentFilter = new IntentFilter();
-            intentFilter.addAction("com.example.catdog.myapplication.LOCATE");
+            intentFilter.addAction(TYPE_LOCATE);
             broadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
@@ -86,7 +93,7 @@ public class ClientService extends Service {
                         if (!broadcastQueue.isEmpty()) {
                             if (client != null && client.isConnected) {
                                 switch (broadcastQueue.poll()) {
-                                    case "com.example.catdog.myapplication.LOCATE":
+                                    case TYPE_LOCATE:
                                         client.request(Client.Type.Locate, new ClientTypeBeacon("ID"));
                                         break;
 
@@ -104,6 +111,24 @@ public class ClientService extends Service {
             }
         });
         broadcastThread.start();
+
+        // 타이머 생성
+        if (timerTask == null) {
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    if (countConnectError >= maxRetry) {
+                        if (client != null && !client.isConnected) {
+                            client.connectAsync();
+                        }
+                    }
+                }
+            };
+        }
+        if (timer == null) {
+            timer = new Timer();
+            timer.schedule(timerTask, 0, 5000);
+        }
 
         // 클라이언트 처리
         if (client == null) {
@@ -163,8 +188,6 @@ public class ClientService extends Service {
             client.setOnDataReceivedListener(new Client.onDataReceived() {
                 @Override
                 public void onDataReceived(final String result, boolean isError) {
-                    Log.d("발송된 내용", result);
-
                     if (!isError) {
                         try {
                             JSONParser jsonParser = new JSONParser();
@@ -217,7 +240,7 @@ public class ClientService extends Service {
                                     break;
 
                                 case "emergency":
-                                    Intent location = new Intent("swmaestro.ship.broadcast.EMERGENCY");
+                                    Intent location = new Intent(TYPE_EMERGENCY);
                                     sendBroadcast(location);
 
                                 default:
