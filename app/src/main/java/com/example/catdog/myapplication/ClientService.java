@@ -36,7 +36,7 @@ public class ClientService extends Service {
     private static BroadcastReceiver broadcastReceiver;
 
     private static Thread broadcastThread;
-    private static Queue<String> broadcastQueue = new LinkedList<>();
+    private static Queue<BroadData> broadcastQueue = new LinkedList<>();
 
     private int maxRetry = 3;
     private static int countConnectError = 0;
@@ -49,6 +49,16 @@ public class ClientService extends Service {
     private final String TYPE_EMERGENCY_TRUE = "swmaestro.ship.broadcast.EMERGENCYTRUE";
     private final String TYPE_EMERGENCY_FALSE = "swmaestro.ship.broadcast.EMERGENCYFALSE";
     private final String TYPE_CALL_MAP = "swmaestro.ship.broadcast.CALLMAP";
+
+    private class BroadData {
+        private String action;
+        private Intent intent;
+
+        public BroadData(String action, Intent intent) {
+            this.action = action;
+            this.intent = intent;
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -67,7 +77,7 @@ public class ClientService extends Service {
 
                     // 수신된 정보를 큐에 추가
                     synchronized (broadcastThread) {
-                        broadcastQueue.add(intent.getAction());
+                        broadcastQueue.add(new BroadData(intent.getAction(), intent));
                         broadcastThread.notify();
                     }
                 }
@@ -94,9 +104,10 @@ public class ClientService extends Service {
                     synchronized (broadcastThread) {
                         if (!broadcastQueue.isEmpty()) {
                             if (client != null && client.isConnected) {
-                                switch (broadcastQueue.poll()) {
+                                BroadData broadData = broadcastQueue.poll();
+                                switch (broadData.action) {
                                     case TYPE_LOCATE:
-                                        client.request(Client.Type.Locate, new ClientTypeBeacon("ID"));
+                                        client.request(Client.Type.Locate, new ClientTypeBeacon(broadData.intent.getStringExtra("beacon_id")));
                                         break;
 
                                     default:
