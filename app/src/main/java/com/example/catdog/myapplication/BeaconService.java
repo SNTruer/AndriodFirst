@@ -135,8 +135,21 @@ public class BeaconService extends Service implements Runnable {
     }
 
     private void beaconSort(){
+        long time = System.currentTimeMillis();
         synchronized (beaconList){
             Collections.sort(beaconList);
+        }
+        if(beaconList==null || beaconList.size()==0) return;
+        int size = beaconList.size();
+        for(int i=0;i<size;i++)
+        {
+            if(time-beaconList.get(0).time>=3000){
+                beaconList.get(0).Distance=Double.MAX_VALUE;
+                synchronized (beaconList){
+                    Collections.sort(beaconList);
+                }
+            }
+            else break;
         }
         if(nearestBeacon==null || beaconList.get(0)!=nearestBeacon){
             if(beaconList==null || beaconList.size()==0) return;
@@ -248,7 +261,7 @@ public class BeaconService extends Service implements Runnable {
                     stopFlag=false;
                     //stopBeaconSearch();
                 }
-                if(time-sortTime>=300){
+                if(time-sortTime>=800){
                     //Log.d("whatthe","비콘정렬");
                     sortFlag=false;
                     beaconSort();
@@ -272,12 +285,14 @@ public class BeaconService extends Service implements Runnable {
                 if (data == null) {
                     //data = beaconDataHashMap.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
                     data = new BeaconData(pkt.Uuid,pkt.MajorId,pkt.MinorId,pkt.Distance);
-                    data.Distance = pkt.Distance;
+                    data.inputDistance(pkt.Distance);
+                    data.time=System.currentTimeMillis();
                     listBeaconHash.put(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId, data);
                     beaconList.add(data);
                     //Log.d("whatthe", "beaconscan");
                 } else {
-                    data.Distance = pkt.Distance;
+                    data.inputDistance(pkt.Distance);
+                    data.time=System.currentTimeMillis();
                     //Log.d("whatthe", "beaconscan");
                 }
             }

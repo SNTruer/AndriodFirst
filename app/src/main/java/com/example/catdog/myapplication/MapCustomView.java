@@ -301,14 +301,15 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
 
     private void fillArrow(Canvas canvas, float x0, float y0, float x1, float y1,int color) {
 
-        Matrix matrix = new Matrix();
+        /*Matrix matrix = new Matrix();
 
-        matrix.postRotate((float) Math.toDegrees(Math.atan((double)(y1-y0)/(x1-x0))) + 90);
+        matrix.postRotate((float) Math.toDegrees(Math.atan((double)(y1-y0)/(x1-x0)))+90);
+
 
         Bitmap bitmap=Bitmap.createBitmap(Arrow,0,0,Arrow.getWidth(),Arrow.getHeight(),matrix,true);
 
-        canvas.drawBitmap(bitmap,x1,y1,null);
-        /*Paint paint = new Paint();
+        canvas.drawBitmap(bitmap,x1,y1,null);*/
+        Paint paint = new Paint();
         paint.setColor(color);
         paint.setStrokeWidth(5);
         paint.setStyle(Paint.Style.FILL);
@@ -318,7 +319,7 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
 
         float deltaX = x1 - x0;
         float deltaY = y1 - y0;
-        float frac = (float) 0.4;
+        float frac = (float) 0.3;
 
         float point_x_1 = x0 + (float) ((1 - frac) * deltaX + frac * deltaY);
         float point_y_1 = y0 + (float) ((1 - frac) * deltaY - frac * deltaX);
@@ -339,7 +340,7 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
         path.lineTo(point_x_1, point_y_1);
         path.close();
 
-        canvas.drawPath(path, paint);*/
+        canvas.drawPath(path, paint);
     }
 
     public void setMapURL(String url){
