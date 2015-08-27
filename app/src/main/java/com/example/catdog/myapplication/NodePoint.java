@@ -7,6 +7,7 @@ public class NodePoint {
 
     static int maxIndex=0;
     double x, y;
-    int exit;
+    boolean isExit;
+    boolean isBeacon;
 }
 

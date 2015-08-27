@@ -1,5 +1,7 @@
 package com.example.catdog.myapplication;
 
+import android.util.Log;
+
 import org.w3c.dom.Node;
 
 import java.util.PriorityQueue;
@@ -54,6 +56,7 @@ public class Dijkstra {
         bestDistance[startPoint]=0;
         for(int i=0;i<N-1;i++) {
             data=queue.peek();
+            if(data==null) break;
             while(queue.size()>0) {
                 data=queue.poll();
                 if (!check[data.point]) break;
@@ -73,11 +76,13 @@ public class Dijkstra {
         double min = Double.MAX_VALUE;
         int x = 1;
         for (int i=1;i<=N;i++) {
-            if(nodePoints[i].exit==1 && min>bestDistance[i]){
+            if(nodePoints[i].isExit && min>bestDistance[i]){
                 min=bestDistance[i];
                 x=i;
             }
         }
+
+        Log.d("whatthe", "최적의 탈출구는 " + x);
 
         int cnt=0;
         while(x!=startPoint){

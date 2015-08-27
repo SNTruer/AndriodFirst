@@ -27,7 +27,8 @@ import java.util.Vector;
 public class BeaconService extends Service implements Runnable {
     private final IBinder binder = new LocalBinder();
     private static final String BROADCAST_LOCATE = "swmaestro.ship.broadcast.LOCATE";
-    private static final String EMERGENCY_CALL = "swmaestro.ship.broadcast.EMERGENCY";
+    private static final String EMERGENCY_CALL = "swmaestro.ship.broadcast.EMERGENCYTRUE";
+    private static final String EMERGENCY_FALSE = "swmaestro.ship.broadcast.EMERGENCYFALSE";
     private static final String CALL_MAP = "swmaestro.ship.broadcast.CALLMAP";
     private static final String BROADCAST_LOCAL = "swmaestro.ship.broadcast.local";
     private static final String SERIAL_UUID = "24ddf4118cf1440c87cde368daf9c93e";
@@ -54,7 +55,7 @@ public class BeaconService extends Service implements Runnable {
     private BeaconChangeCallback changeCallback;
     private boolean stopFlag=false,sortFlag=false;
     private long time,stopTime,sortTime;
-    private String nowMap;
+    private Integer nowMap;
 
 
     private BluetoothAdapter.LeScanCallback scanCallBack;
@@ -129,6 +130,10 @@ public class BeaconService extends Service implements Runnable {
         m_BluetoothAdapter.startLeScan(scanCallBack);
     }
 
+    public void resetMap(){
+        nowMap=0;
+    }
+
     private void beaconSort(){
         synchronized (beaconList){
             Collections.sort(beaconList);
@@ -137,6 +142,7 @@ public class BeaconService extends Service implements Runnable {
             if(beaconList==null || beaconList.size()==0) return;
             nearestBeacon=beaconList.get(0);
             Intent intent = new Intent(BROADCAST_LOCATE);
+            intent.putExtra("beacon_id",nearestBeacon.Uuid+"-"+nearestBeacon.MajorId+"-"+nearestBeacon.MinorId);
             Log.d("whatthe","최근접 비콘 변경");
             sendBroadcast(intent);
             if(changeCallback !=null)
@@ -156,13 +162,14 @@ public class BeaconService extends Service implements Runnable {
             }
         };
         Timer timer = new Timer();
-        timer.schedule(timerTask,3000);
+        timer.schedule(timerTask, 3000);
         m_BluetoothAdapter.stopLeScan(scanCallBack);
     }
 
     public void setChangeCallback(BeaconChangeCallback callback){
         Log.d("whatthe","콜백등록");
         this.changeCallback=callback;
+        changeCallback.method(nearestBeacon);
     }
 
     public BeaconData getNearestBeacon(){
@@ -200,15 +207,17 @@ public class BeaconService extends Service implements Runnable {
                 String action = intent.getAction();
                 switch (action){
                     case EMERGENCY_CALL:emergencyFlag=true;break;
+                    case EMERGENCY_FALSE:emergencyFlag=false;break;
                     case CALL_MAP:
                         if(!emergencyFlag) break;
+                        Integer mapIdx = (Integer)intent.getSerializableExtra("mapId");
+                        if(nowMap!=mapIdx) return;
                         Intent mapIntent = new Intent(context, MapViewActivity.class);
                         mapIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         mapIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        Integer groupIdx =(Integer)intent.getSerializableExtra("groupIdx");
-                        Integer mapIdx = (Integer)intent.getSerializableExtra("mapIdx");
-                        mapIntent.putExtra("groupIdx",groupIdx);
-                        mapIntent.putExtra("mapIdx",mapIdx);
+                        //Integer groupIdx =(Integer)intent.getSerializableExtra("groupIdx");
+                        //mapIntent.putExtra("groupIdx",groupIdx);
+                        mapIntent.putExtra("mapId",mapIdx);
                         context.startActivity(mapIntent);
                         break;
                 }
@@ -234,12 +243,12 @@ public class BeaconService extends Service implements Runnable {
                     sortFlag=true;
                 }
                 if (time-stopTime >= 3000) {
-                    Log.d("whatthe","비콘스톱");
+                    //Log.d("whatthe","비콘스톱");
                     stopFlag=false;
-                    stopBeaconSearch();
+                    //stopBeaconSearch();
                 }
-                if(time-sortTime>=600){
-                    Log.d("whatthe","비콘정렬");
+                if(time-sortTime>=300){
+                    //Log.d("whatthe","비콘정렬");
                     sortFlag=false;
                     beaconSort();
                 }
@@ -247,22 +256,28 @@ public class BeaconService extends Service implements Runnable {
                 AnalyzedPacket pkt = new AnalyzedPacket(rssi, scanRecord);
 
                 //beaconDataHashMap은 서버 DB에서 비콘 정보를 가져온 데이터를 담고 있음, 이것이 null이라면 우리쪽이랑 상관없는 비콘이란 것이므로 패스
-                BeaconData data = beaconDataHashMap.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
-                if (data == null) return;
+                //BeaconData data = beaconDataHashMap.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
+                //if (data == null) return;
 
                 //UUID가 우리꺼랑 다르면 패스
-                if (!pkt.Uuid.equals(SERIAL_UUID)) return;
+                if (!pkt.Uuid.equals(SERIAL_UUID)){
+                    //Log.d("whatthe", SERIAL_UUID + "\n" + pkt.Uuid);
+                    return;
+                }
 
                 //listBeaconHash는 내 주변의 비콘의 정보를 가진 map임.
-                data = listBeaconHash.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
-                //Log.d("whatthe","beaconscan");
+                BeaconData data = listBeaconHash.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
+               // Log.d("whatthe","beaconscan");
                 if (data == null) {
-                    data = beaconDataHashMap.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
+                    //data = beaconDataHashMap.get(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId);
+                    data = new BeaconData(pkt.Uuid,pkt.MajorId,pkt.MinorId,pkt.Distance);
                     data.Distance = pkt.Distance;
                     listBeaconHash.put(pkt.Uuid + "-" + pkt.MajorId + "-" + pkt.MinorId, data);
                     beaconList.add(data);
+                    //Log.d("whatthe", "beaconscan");
                 } else {
                     data.Distance = pkt.Distance;
+                    //Log.d("whatthe", "beaconscan");
                 }
             }
         };
@@ -270,8 +285,7 @@ public class BeaconService extends Service implements Runnable {
 
     private void tempCallMap(){
         Intent intent = new Intent(CALL_MAP);
-        intent.putExtra("groupIdx",new Integer(1));
-        intent.putExtra("mapIdx",new Integer(6));
+        intent.putExtra("mapId",new Integer(1));
         sendBroadcast(intent);
     }
 

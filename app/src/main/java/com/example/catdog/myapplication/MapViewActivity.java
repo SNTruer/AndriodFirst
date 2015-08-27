@@ -48,7 +48,6 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
     LinearLayout linearLayout;
     String imageUrl;
     String mapDetailString;
-    Integer groupIdx;
     Integer mapIdx;
     BeaconDataReceiver beaconDataReceiver;
     private BeaconService beaconService;
@@ -69,8 +68,7 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        groupIdx=(Integer)intent.getSerializableExtra("groupIdx");
-        mapIdx=(Integer)intent.getSerializableExtra("mapIdx");
+        mapIdx=(Integer)intent.getSerializableExtra("mapId");
 
         setContentView(R.layout.activity_show_me_the_map);
 
@@ -80,7 +78,7 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
 
     private void doBindService(){
         Intent serviceIntent = new Intent(this,BeaconService.class);
-        bindService(serviceIntent,serviceConnection, Context.BIND_AUTO_CREATE);
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -88,61 +86,14 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
         super.onNewIntent(intent);
         if(intent!=null){
             if(mapView!=null){
-                groupIdx=(Integer)intent.getSerializableExtra("groupIdx");
-                mapIdx=(Integer)intent.getSerializableExtra("mapIdx");
+                mapIdx=(Integer)intent.getSerializableExtra("mapId");
                 linearLayout.removeView(mapView);
-                String parameter = null;
-                try {
-                    parameter = URLEncoder.encode("group_idx", "UTF-8") + "=" + ((Integer)groupIdx).toString();
-                    ServerUtill.mapRequest(parameter,new ServerUtill.OnComplete(){
-
-                        @Override
-                        public void onComplete(byte[] byteArray) {
-                            try {
-                                HashMap<Integer, MapData> map = MapData.getMapHashMapFromDom(DomChanger.byteToDom(byteArray));
-                                imageUrl = map.get(mapIdx).imageUrl;
-                                mapDetailString = map.get(mapIdx).mapDetailString;
-                                MapViewActivity.this.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mapView = new MapCustomView(MapViewActivity.this);
-                                        try {
-                                            mapView.init(imageUrl, DomChanger.stringToDom(mapDetailString));
-                                            beaconService.setChangeCallback(new BeaconService.BeaconChangeCallback() {
-                                                @Override
-                                                public void method(BeaconData data) {
-                                                    if (data == null) return;
-                                                    String key = data.Uuid + "-" + data.MajorId + "-" + data.MinorId;
-                                                    mapView.checkBeacon(key);
-                                                }
-                                            });
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.testlinear);
-                                        linearLayout.addView(mapView);
-                                    }
-                                });
-                            } catch (Exception e) {
-                                Log.d("whatthe",e.toString() + "completeError");
-                            }
-                        }
-                    });
-                }catch (Exception e){
-                    Log.d("whatthe",e.toString());
-                }
+                addMapView();
             }
         }
     }
 
-    void init() {
-        horizontalScrollView=(HorizontalScrollView)findViewById(R.id.maphorizontalscrollview);
-        scrollView=(ScrollView)findViewById(R.id.mapscrollview);
-        horizontalScrollView.setOnTouchListener(this);
-        scrollView.setOnTouchListener(this);
-        horizontalScrollView.setFadingEdgeLength(0);
-        scrollView.setFadingEdgeLength(0);
-
+    private void addMapView(){
         String parameter = null;
         try {
             parameter = URLEncoder.encode("map_id", "UTF-8") + "=" + ((Integer)mapIdx).toString();
@@ -166,6 +117,7 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
                                             if (data == null) return;
                                             String key = data.Uuid + "-" + data.MajorId + "-" + data.MinorId;
                                             mapView.checkBeacon(key);
+                                            mapView.zoomPointer(key);
                                         }
                                     });
                                 } catch (Exception e) {
@@ -186,8 +138,19 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
                 }
             });
         }catch (Exception e){
-            Log.d("whatthe",e.toString());
+            Log.d("whatthe",e.toString() + "Error");
         }
+    }
+
+    void init() {
+        horizontalScrollView=(HorizontalScrollView)findViewById(R.id.maphorizontalscrollview);
+        scrollView=(ScrollView)findViewById(R.id.mapscrollview);
+        horizontalScrollView.setOnTouchListener(this);
+        scrollView.setOnTouchListener(this);
+        horizontalScrollView.setFadingEdgeLength(0);
+        scrollView.setFadingEdgeLength(0);
+
+        addMapView();
 
         //mapView.setFocusableInTouchMode(true);
         //mapView.requestFocus();
