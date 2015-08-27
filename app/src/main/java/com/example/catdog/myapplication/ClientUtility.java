@@ -11,7 +11,7 @@ import org.json.simple.JSONObject;
  */
 class ClientUtility {
     public static String getDeviceID() {
-        return "TEMP-DEVICEID-STRING-NUMBER";
+        return String.valueOf(Math.random() * 10);
     }
 
     public static String toJSONString(Client.Type type, Object content) {
