@@ -36,7 +36,11 @@ public class ClientService extends Service {
     private static BroadcastReceiver broadcastReceiver;
 
     private static Thread broadcastThread;
+<<<<<<< HEAD
     private static Queue<String> broadcastQueue = new LinkedList<>();
+=======
+    private static Queue<BroadData> broadcastQueue = new LinkedList<>();
+>>>>>>> efaf278644adee2623ef5f68a3c8d35521d51ba2
 
     private int maxRetry = 3;
     private static int countConnectError = 0;
@@ -46,7 +50,23 @@ public class ClientService extends Service {
     private static TimerTask timerTask;
 
     private final String TYPE_LOCATE = "swmaestro.ship.broadcast.LOCATE";
+<<<<<<< HEAD
     private final String TYPE_EMERGENCY = "swmaestro.ship.broadcast.EMERGENCY";
+=======
+    private final String TYPE_EMERGENCY_TRUE = "swmaestro.ship.broadcast.EMERGENCYTRUE";
+    private final String TYPE_EMERGENCY_FALSE = "swmaestro.ship.broadcast.EMERGENCYFALSE";
+    private final String TYPE_CALL_MAP = "swmaestro.ship.broadcast.CALLMAP";
+
+    private class BroadData {
+        private String action;
+        private Intent intent;
+
+        public BroadData(String action, Intent intent) {
+            this.action = action;
+            this.intent = intent;
+        }
+    }
+>>>>>>> efaf278644adee2623ef5f68a3c8d35521d51ba2
 
     @Override
     public void onCreate() {
@@ -65,7 +85,11 @@ public class ClientService extends Service {
 
                     // 수신된 정보를 큐에 추가
                     synchronized (broadcastThread) {
+<<<<<<< HEAD
                         broadcastQueue.add(intent.getAction());
+=======
+                        broadcastQueue.add(new BroadData(intent.getAction(), intent));
+>>>>>>> efaf278644adee2623ef5f68a3c8d35521d51ba2
                         broadcastThread.notify();
                     }
                 }
@@ -92,9 +116,16 @@ public class ClientService extends Service {
                     synchronized (broadcastThread) {
                         if (!broadcastQueue.isEmpty()) {
                             if (client != null && client.isConnected) {
+<<<<<<< HEAD
                                 switch (broadcastQueue.poll()) {
                                     case TYPE_LOCATE:
                                         client.request(Client.Type.Locate, new ClientTypeBeacon("ID"));
+=======
+                                BroadData broadData = broadcastQueue.poll();
+                                switch (broadData.action) {
+                                    case TYPE_LOCATE:
+                                        client.request(Client.Type.Locate, new ClientTypeBeacon(broadData.intent.getStringExtra("beacon_id")));
+>>>>>>> efaf278644adee2623ef5f68a3c8d35521d51ba2
                                         break;
 
                                     default:
@@ -133,7 +164,11 @@ public class ClientService extends Service {
         // 클라이언트 처리
         if (client == null) {
             // 클라이언트 생성
+<<<<<<< HEAD
             client = new Client("172.16.101.41", 12000);
+=======
+            client = new Client("172.16.101.142", 12000);
+>>>>>>> efaf278644adee2623ef5f68a3c8d35521d51ba2
 
             // 클라이언트 접속 성공 이벤트
             client.setOnConnectedListener(new Client.onConnected() {
@@ -240,9 +275,20 @@ public class ClientService extends Service {
                                     break;
 
                                 case "emergency":
+<<<<<<< HEAD
                                     Intent location = new Intent(TYPE_EMERGENCY);
                                     sendBroadcast(location);
 
+=======
+                                    Intent location = new Intent(TYPE_EMERGENCY_TRUE);
+                                    sendBroadcast(location);
+
+                                    /*
+                                    Intent location = new Intent(TYPE_EMERGENCY_FALSE);
+                                    sendBroadcast(location);
+                                    */
+
+>>>>>>> efaf278644adee2623ef5f68a3c8d35521d51ba2
                                 default:
                                     break;
                             }
