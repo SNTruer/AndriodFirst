@@ -55,7 +55,7 @@ public class BeaconService extends Service implements Runnable {
     private BeaconChangeCallback changeCallback;
     private boolean stopFlag=false,sortFlag=false;
     private long time,stopTime,sortTime;
-    private Integer nowMap;
+    private Integer nowMap = new Integer(0);
 
 
     private BluetoothAdapter.LeScanCallback scanCallBack;
@@ -211,7 +211,8 @@ public class BeaconService extends Service implements Runnable {
                     case CALL_MAP:
                         if(!emergencyFlag) break;
                         Integer mapIdx = (Integer)intent.getSerializableExtra("mapId");
-                        if(nowMap!=mapIdx) return;
+                        if(nowMap==mapIdx) return;
+                        nowMap=mapIdx;
                         Intent mapIntent = new Intent(context, MapViewActivity.class);
                         mapIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         mapIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);

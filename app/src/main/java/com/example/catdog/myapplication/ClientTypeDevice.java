@@ -10,7 +10,7 @@ class ClientTypeDevice extends ClientJSON {
     public JSONObject getJSON() {
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("id", ClientUtility.getDeviceID());
+        jsonObject.put("device_id", ClientUtility.getDeviceID());
         jsonObject.put("grant", "user");
 
         return jsonObject;

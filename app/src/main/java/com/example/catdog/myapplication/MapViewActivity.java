@@ -199,6 +199,7 @@ public class MapViewActivity extends Activity implements View.OnClickListener, V
 //        mapView.onDestroy();
         super.onDestroy();
         Log.d("whatthe","혼돈파괴");
+        beaconService.resetMap();
         unbindService(serviceConnection);
     }
 

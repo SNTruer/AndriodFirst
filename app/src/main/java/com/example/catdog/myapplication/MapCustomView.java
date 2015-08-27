@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
@@ -48,6 +49,7 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
     private String nowBeaconKey;
     private NodePoint startPoint;
     public Thread beaconThread;
+    Bitmap Arrow;
 
     public class NodeBeacon {
 
@@ -112,7 +114,10 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
 
         //scaleDetector.setQuickScaleEnabled(true);
         beaconCircle=BitmapFactory.decodeResource(getResources(), R.drawable.beaconcircle);
-        beaconCircle = Bitmap.createScaledBitmap(beaconCircle,30,30,true);
+        beaconCircle = Bitmap.createScaledBitmap(beaconCircle, 30, 30, true);
+
+        Arrow = BitmapFactory.decodeResource(getResources(), R.drawable.arrow);
+        Arrow=Bitmap.createScaledBitmap(Arrow,100,100,true);
 
         setMapURL(url);
         Thread thread = new Thread(this);
@@ -265,7 +270,7 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
                         paint.setColor(Color.BLUE);
                         canvas.drawLine((float) realNodes[i].x+width/100, (float) realNodes[i].y+width/100, (float) realNodes[j].x+width/100, (float) realNodes[j].y+width/100, paint);
                         if(routeCheck[i]>routeCheck[j]) fillArrow(canvas, (float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, Color.GREEN);
-                        else fillArrow(canvas, (float) realNodes[j].x+width/100, (float) realNodes[j].y+width/100, (float) realNodes[i].x+width/100, (float) realNodes[i].y+width/100, Color.GREEN);
+                        else fillArrow(canvas, (float) (realNodes[j].x+width/100), (float) realNodes[j].y+width/100, (float) realNodes[i].x+width/100, (float) realNodes[i].y+width/100, Color.GREEN);
                     }
                 }
             }
@@ -296,14 +301,24 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
 
     private void fillArrow(Canvas canvas, float x0, float y0, float x1, float y1,int color) {
 
-        Paint paint = new Paint();
+        Matrix matrix = new Matrix();
+
+        matrix.postRotate((float) Math.toDegrees(Math.atan((double)(y1-y0)/(x1-x0))) + 90);
+
+        Bitmap bitmap=Bitmap.createBitmap(Arrow,0,0,Arrow.getWidth(),Arrow.getHeight(),matrix,true);
+
+        canvas.drawBitmap(bitmap,x1,y1,null);
+        /*Paint paint = new Paint();
         paint.setColor(color);
-        paint.setStrokeWidth(3);
+        paint.setStrokeWidth(5);
         paint.setStyle(Paint.Style.FILL);
+
+        x0 = x0 + (x1-x0)*0.7f;
+        y0 = y0 + (y1-y0)*0.7f;
 
         float deltaX = x1 - x0;
         float deltaY = y1 - y0;
-        float frac = (float) 0.1;
+        float frac = (float) 0.4;
 
         float point_x_1 = x0 + (float) ((1 - frac) * deltaX + frac * deltaY);
         float point_y_1 = y0 + (float) ((1 - frac) * deltaY - frac * deltaX);
@@ -324,7 +339,7 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
         path.lineTo(point_x_1, point_y_1);
         path.close();
 
-        canvas.drawPath(path, paint);
+        canvas.drawPath(path, paint);*/
     }
 
     public void setMapURL(String url){

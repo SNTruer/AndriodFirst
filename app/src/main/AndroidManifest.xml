@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--suppress ALL -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.catdog.myapplication" >
 
@@ -7,6 +6,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
@@ -19,7 +19,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:launchMode="singleInstance" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,15 +31,7 @@
             android:name=".MapViewActivity"
             android:label="MapView" />
 
-        <service android:name=".BeaconService"
-            android:enabled="true"
-            />
-
-        <receiver android:name=".ClientReceiver" >
-            <intent-filter>
-                <action android:name="com.example.catdog.myapplication.LOCATE" />
-            </intent-filter>
-        </receiver>
+        <service android:name=".BeaconService" />
 
         <service
             android:name=".ClientService"

@@ -30,6 +30,7 @@ import at.markushi.ui.CircleButton;
  */
 public class FirstFragment extends Fragment {
     private BeaconService beaconService;
+    private static final String BROADCAST_LOCATE = "swmaestro.ship.broadcast.LOCATE";
     private BluetoothAdapter m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private static final int REQUEST_ENABLE_BT = 1;
     private View view;
@@ -103,6 +104,9 @@ public class FirstFragment extends Fragment {
                         serviceIntent=new Intent(getActivity(),BeaconService.class);
                         //getActivity().startService(serviceIntent);
                         getActivity().bindService(serviceIntent,serviceConnection, Context.BIND_AUTO_CREATE);
+                        try {
+                            getActivity().startService(new Intent(getActivity(), ClientService.class));
+                        }catch (Exception e){}
                         //getActivity().startService(new Intent(getActivity(), ClientService.class));
                         btn.setColor(Color.RED);
                         textView.setText("서비스를 종료하시려면 버튼을 눌러주세요");
@@ -110,9 +114,14 @@ public class FirstFragment extends Fragment {
                     else{
                         //getActivity().stopService(serviceIntent);
                         //serviceIntent=null;
-                        getActivity().unbindService(serviceConnection);
+                        try {
+                            getActivity().unbindService(serviceConnection);
+                        }catch(Exception e){}
+                        try{
+                            getActivity().stopService(new Intent(getActivity(), ClientService.class));
+                        }catch (Exception e){}
                         beaconService=null;
-                        btn.setColor(Color.rgb(Integer.parseInt("99",16),Integer.parseInt("CC",16),Integer.parseInt("00",16)));
+                        btn.setColor(Color.rgb(Integer.parseInt("99", 16), Integer.parseInt("CC", 16), Integer.parseInt("00", 16)));
                         textView.setText("서비스를 시동해주십시오");
                     }
                 }
@@ -120,8 +129,7 @@ public class FirstFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_first, container, false);
 
         initFragment();
@@ -133,7 +141,7 @@ public class FirstFragment extends Fragment {
         view.findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent location = new Intent("com.example.catdog.myapplication.LOCATE");
+                Intent location = new Intent(BROADCAST_LOCATE);
                 location.putExtra("ID", "갱신할 비콘 아이디");
                 getActivity().sendBroadcast(location);
             }

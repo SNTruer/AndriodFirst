@@ -1,5 +1,9 @@
 package com.example.catdog.myapplication;
 
+import android.content.Context;
+import android.os.Handler;
+import android.widget.Toast;
+
 import org.json.simple.JSONObject;
 
 /**
@@ -16,5 +20,14 @@ class ClientUtility {
         jsonObject.put("content", content);
 
         return jsonObject.toJSONString();
+    }
+
+    public static void showToast(final Context context, final Handler handler, final String text) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

@@ -5,20 +5,17 @@ import org.json.simple.JSONObject;
 /**
  * Created by SoHyunSeop on 15. 8. 19..
  */
-class ClientTypeLocation extends ClientJSON {
-    private double x = 0;
-    private double y = 0;
+class ClientTypeBeacon extends ClientJSON {
+    private String id;
 
-    public ClientTypeLocation(double x, double y) {
-        this.x = x;
-        this.y = y;
+    public ClientTypeBeacon(String id) {
+        this.id = id;
     }
 
     @Override
     public JSONObject getJSON() {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("x", this.x);
-        jsonObject.put("y", this.y);
+        jsonObject.put("beacon_id", this.id);
 
         return jsonObject;
     }
