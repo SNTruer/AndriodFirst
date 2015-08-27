@@ -232,7 +232,7 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
             paint.setColor(Color.GREEN);
             NodeBeacon beacon = realBeacons.get(nowBeaconKey);
             if(beacon!=null) {
-                canvas.drawCircle((float) beacon.x+width/100, (float) beacon.y+width/100, width/50, paint);
+                canvas.drawCircle((float) beacon.x, (float) beacon.y, width/50, paint);
                 //canvas.drawBitmap(beaconCircle,(float)beacon.x,(float)beacon.y,null);
             }
         }
@@ -247,7 +247,8 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
                     }
                     else {
                         paint.setColor(Color.RED);
-                        canvas.drawLine((float) realNodes[i].x+width/100, (float) realNodes[i].y+width/100, (float) realNodes[j].x+width/100, (float) realNodes[j].y+width/100, paint);
+                        //canvas.drawLine((float) realNodes[i].x+width/100, (float) realNodes[i].y+width/100, (float) realNodes[j].x+width/100, (float) realNodes[j].y+width/100, paint);
+                        canvas.drawLine((float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, paint);
                     }
                 }
             }
@@ -257,7 +258,8 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
 
             if ((realNodes[i].isExit || routeCheck[i]>0)) paint.setColor(Color.BLUE);
             else paint.setColor(Color.RED);
-            canvas.drawCircle((float) realNodes[i].x+width/100, (float) realNodes[i].y+width/100, width/100, paint);
+            //canvas.drawCircle((float) realNodes[i].x+width/100, (float) realNodes[i].y+width/100, width/100, paint);
+            canvas.drawCircle((float) realNodes[i].x, (float) realNodes[i].y, width/100, paint);
         }
 
         for(int i=1;i<=NodePoint.maxIndex;i++){
@@ -265,12 +267,12 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
 
                 if (distance[i][j] > 0) {
                     paint.setStrokeWidth(width/200);
-                    if(routeCheck[i]>0 && routeCheck[j]>0 && Math.abs(routeCheck[i]-routeCheck[j])==1)
-                    {
+                    if(routeCheck[i]>0 && routeCheck[j]>0 && Math.abs(routeCheck[i]-routeCheck[j])==1) {
                         paint.setColor(Color.BLUE);
-                        canvas.drawLine((float) realNodes[i].x+width/100, (float) realNodes[i].y+width/100, (float) realNodes[j].x+width/100, (float) realNodes[j].y+width/100, paint);
+                        canvas.drawLine((float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, paint);
+                        //canvas.drawLine((float) realNodes[i].x+width/100, (float) realNodes[i].y+width/100, (float) realNodes[j].x+width/100, (float) realNodes[j].y+width/100, paint);
                         if(routeCheck[i]>routeCheck[j]) fillArrow(canvas, (float) realNodes[i].x, (float) realNodes[i].y, (float) realNodes[j].x, (float) realNodes[j].y, Color.GREEN);
-                        else fillArrow(canvas, (float) (realNodes[j].x+width/100), (float) realNodes[j].y+width/100, (float) realNodes[i].x+width/100, (float) realNodes[i].y+width/100, Color.GREEN);
+                        else fillArrow(canvas, (float) (realNodes[j].x), (float) realNodes[j].y, (float) realNodes[i].x, (float) realNodes[i].y, Color.GREEN);
                     }
                 }
             }
@@ -310,6 +312,8 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
 
         canvas.drawBitmap(bitmap,x1,y1,null);*/
         Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setFlags(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(color);
         paint.setStrokeWidth(5);
         paint.setStyle(Paint.Style.FILL);
@@ -319,7 +323,8 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
 
         float deltaX = x1 - x0;
         float deltaY = y1 - y0;
-        float frac = (float) 0.3;
+        //float frac = (float) 0.3;
+        float frac = (200)/(deltaX+deltaY)*(float) 0.3;
 
         float point_x_1 = x0 + (float) ((1 - frac) * deltaX + frac * deltaY);
         float point_y_1 = y0 + (float) ((1 - frac) * deltaY - frac * deltaX);
