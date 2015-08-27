@@ -46,7 +46,9 @@ public class ClientService extends Service {
     private static TimerTask timerTask;
 
     private final String TYPE_LOCATE = "swmaestro.ship.broadcast.LOCATE";
-    private final String TYPE_EMERGENCY = "swmaestro.ship.broadcast.EMERGENCY";
+    private final String TYPE_EMERGENCY_TRUE = "swmaestro.ship.broadcast.EMERGENCYTRUE";
+    private final String TYPE_EMERGENCY_FALSE = "swmaestro.ship.broadcast.EMERGENCYFALSE";
+    private final String TYPE_CALL_MAP = "swmaestro.ship.broadcast.CALLMAP";
 
     @Override
     public void onCreate() {
@@ -240,8 +242,13 @@ public class ClientService extends Service {
                                     break;
 
                                 case "emergency":
-                                    Intent location = new Intent(TYPE_EMERGENCY);
+                                    Intent location = new Intent(TYPE_EMERGENCY_TRUE);
                                     sendBroadcast(location);
+
+                                    /*
+                                    Intent location = new Intent(TYPE_EMERGENCY_FALSE);
+                                    sendBroadcast(location);
+                                    */
 
                                 default:
                                     break;
