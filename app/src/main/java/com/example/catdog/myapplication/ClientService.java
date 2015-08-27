@@ -201,6 +201,7 @@ public class ClientService extends Service {
             client.setOnDataReceivedListener(new Client.onDataReceived() {
                 @Override
                 public void onDataReceived(final String result, boolean isError) {
+                    //ClientUtility.showToast(context, handler, result);
                     if (!isError) {
                         try {
                             JSONParser jsonParser = new JSONParser();

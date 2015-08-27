@@ -103,9 +103,11 @@ public class FirstFragment extends Fragment {
                     if(beaconService==null) {
                         serviceIntent=new Intent(getActivity(),BeaconService.class);
                         //getActivity().startService(serviceIntent);
-                        getActivity().bindService(serviceIntent,serviceConnection, Context.BIND_AUTO_CREATE);
                         try {
-                            getActivity().startService(new Intent(getActivity(), ClientService.class));
+                            getActivity().bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+                        }catch (Exception e){}
+                        try {
+                            //getActivity().startService(new Intent(getActivity(), ClientService.class));
                         }catch (Exception e){}
                         //getActivity().startService(new Intent(getActivity(), ClientService.class));
                         btn.setColor(Color.RED);
@@ -118,7 +120,7 @@ public class FirstFragment extends Fragment {
                             getActivity().unbindService(serviceConnection);
                         }catch(Exception e){}
                         try{
-                            getActivity().stopService(new Intent(getActivity(), ClientService.class));
+                            //getActivity().stopService(new Intent(getActivity(), ClientService.class));
                         }catch (Exception e){}
                         beaconService=null;
                         btn.setColor(Color.rgb(Integer.parseInt("99", 16), Integer.parseInt("CC", 16), Integer.parseInt("00", 16)));

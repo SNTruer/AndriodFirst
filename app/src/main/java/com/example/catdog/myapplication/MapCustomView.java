@@ -152,7 +152,13 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
             is.close();
             con.disconnect();
 
-            m_bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+
+            options.inSampleSize=1;
+            options.inPurgeable = true;
+            options.inDither = true;
+
+            m_bitmap = BitmapFactory.decodeByteArray(data, 0, data.length,options);
 
             height = m_bitmap.getHeight();
             width = m_bitmap.getWidth();
@@ -162,8 +168,8 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
             post(new Runnable() {
                 @Override
                 public void run() {
-                    //MapCustomView.super.setImageBitmap(Bitmap.createBitmap(width,height, Bitmap.Config.RGB_565));
-                    MapCustomView.super.setImageBitmap(m_bitmap);
+                    MapCustomView.super.setImageBitmap(Bitmap.createBitmap(width,height, Bitmap.Config.RGB_565));
+                    //MapCustomView.super.setImageBitmap(m_bitmap);
                 }
             });
 
@@ -211,7 +217,7 @@ public class MapCustomView extends TouchImageView implements Runnable, View.OnTo
         //canvas.scale(super.normalizedScale, super.normalizedScale);
         //canvas.scale(scaleFactor,scaleFactor);
         //canvas.translate(-10,-10);
-        super.onDraw(canvas);
+        //super.onDraw(canvas);
         Log.d("map", "맵 그리기 시작합니다.");
         if (m_bitmap == null || realNodes == null) {
             if(m_bitmap==null) Log.d("map","비트맵이 널");
